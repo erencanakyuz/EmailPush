@@ -1,0 +1,6 @@
+@EmailPush_HostAddress = http://localhost:5129
+
+GET {{EmailPush_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

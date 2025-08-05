@@ -1,0 +1,37 @@
+### Test EmailPush API
+
+@baseUrl = https://localhost:7129
+
+### 1. Get All Campaigns
+GET {{baseUrl}}/api/Campaigns
+
+### 2. Create Campaign
+POST {{baseUrl}}/api/Campaigns
+Content-Type: application/json
+
+{
+  "name": "Welcome Campaign",
+  "subject": "Welcome to our service!",
+  "content": "Thank you for joining us. This is a test email campaign.",
+  "recipients": ["user1@example.com", "user2@example.com", "user3@example.com"]
+}
+
+### 3. Get Campaign by ID (replace with actual ID)
+GET {{baseUrl}}/api/Campaigns/{{campaignId}}
+
+### 4. Start Campaign (replace with actual ID)
+POST {{baseUrl}}/api/Campaigns/{{campaignId}}/start
+
+### 5. Update Campaign (replace with actual ID)
+PUT {{baseUrl}}/api/Campaigns/{{campaignId}}
+Content-Type: application/json
+
+{
+  "name": "Updated Campaign",
+  "subject": "Updated Subject",
+  "content": "This campaign has been updated.",
+  "recipients": ["newuser@example.com"]
+}
+
+### 6. Delete Campaign (replace with actual ID)
+DELETE {{baseUrl}}/api/Campaigns/{{campaignId}}
