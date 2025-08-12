@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "EmailPush API",
         Version = "v1",
-        Description = "Simple Email Campaign Management System"
+        Description = "Simple Email Campaign Push System"
     });
 });
 
@@ -26,7 +26,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Repository
 builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
 
-// MassTransit (RabbitMQ) - Optional for now
+// MassTransit (RabbitMQ) - Optional for now // we will use and test it for later
 /*
 builder.Services.AddMassTransit(x =>
 {

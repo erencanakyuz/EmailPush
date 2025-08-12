@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using EmailPush.Domain.Entities;
 using EmailPush.Domain.Interfaces;
-using EmailPush.Domain.Messages;
 using MassTransit;
 
 namespace EmailPush.Controllers;
@@ -11,13 +10,19 @@ namespace EmailPush.Controllers;
 public class CampaignsController : ControllerBase
 {
     private readonly ICampaignRepository _repository;
-    private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IPublishEndpoint? _publishEndpoint;
+    private readonly ILogger<CampaignsController> _logger;
 
-    public CampaignsController(ICampaignRepository repository, IPublishEndpoint publishEndpoint)
+    public CampaignsController(
+        ICampaignRepository repository, 
+        ILogger<CampaignsController> logger,
+        IPublishEndpoint? publishEndpoint = null)
     {
         _repository = repository;
+        _logger = logger;
         _publishEndpoint = publishEndpoint;
     }
+
 
     [HttpGet]
     public async Task<ActionResult<List<Campaign>>> GetAll()
@@ -36,6 +41,7 @@ public class CampaignsController : ControllerBase
         return Ok(campaign);
     }
 
+
     [HttpPost]
     public async Task<ActionResult<Campaign>> Create(Campaign campaign)
     {
@@ -48,10 +54,14 @@ public class CampaignsController : ControllerBase
         campaign.Id = Guid.NewGuid();
         campaign.CreatedAt = DateTime.UtcNow;
         campaign.Status = CampaignStatus.Draft;
+        campaign.SentCount = 0;
 
         var created = await _repository.AddAsync(campaign);
+        _logger.LogInformation("Campaign created: {CampaignId}", created.Id);
+        
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
+
 
     [HttpPut("{id}")]
     public async Task<ActionResult<Campaign>> Update(Guid id, Campaign campaign)
@@ -69,8 +79,11 @@ public class CampaignsController : ControllerBase
         existing.Recipients = campaign.Recipients;
 
         await _repository.UpdateAsync(existing);
+        _logger.LogInformation("Campaign updated: {CampaignId}", existing.Id);
+        
         return Ok(existing);
     }
+
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(Guid id)
@@ -83,6 +96,8 @@ public class CampaignsController : ControllerBase
             return BadRequest("Only draft campaigns can be deleted");
 
         await _repository.DeleteAsync(campaign);
+        _logger.LogInformation("Campaign deleted: {CampaignId}", id);
+        
         return NoContent();
     }
 
@@ -101,15 +116,43 @@ public class CampaignsController : ControllerBase
         
         await _repository.UpdateAsync(campaign);
 
-        // Send message to queue for processing
-        await _publishEndpoint.Publish(new EmailCampaignMessage
+        // Send to queue for processing
+        if (_publishEndpoint != null)
         {
-            CampaignId = campaign.Id,
-            Recipients = campaign.Recipients,
-            Subject = campaign.Subject,
-            Content = campaign.Content
-        });
+            await _publishEndpoint.Publish(new
+            {
+                CampaignId = campaign.Id,
+                Recipients = campaign.Recipients,
+                Subject = campaign.Subject,
+                Content = campaign.Content
+            });
+        }
+        else
+        {
+            // Simulate queue processing
+            _logger.LogInformation("EMAIL SIMULATION - Campaign: {CampaignName}, Recipients: {RecipientCount}", 
+                campaign.Name, campaign.Recipients.Count);
+        }
 
+        _logger.LogInformation("Campaign started: {CampaignId}", id);
         return Ok();
+    }
+
+
+    [HttpGet("stats")]
+    public async Task<ActionResult> GetStats()
+    {
+        var campaigns = await _repository.GetAllAsync();
+        var campaignsList = campaigns.ToList();
+
+        var stats = new
+        {
+            TotalCampaigns = campaignsList.Count,
+            DraftCampaigns = campaignsList.Count(c => c.Status == CampaignStatus.Draft),
+            CompletedCampaigns = campaignsList.Count(c => c.Status == CampaignStatus.Completed),
+            TotalEmailsSent = campaignsList.Sum(c => c.SentCount)
+        };
+
+        return Ok(stats);
     }
 }
