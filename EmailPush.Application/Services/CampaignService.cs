@@ -43,7 +43,7 @@ public class CampaignService : ICampaignService
         var invalidEmails = dto.Recipients.Where(email => !IsValidEmail(email)).ToList();
         if (invalidEmails.Any())
         {
-            throw new ArgumentException($"Geçersiz email adresleri: {string.Join(", ", invalidEmails)}");
+            throw new ArgumentException($"Invalid email addresses: {string.Join(", ", invalidEmails)}");
         }
 
         var campaign = new Campaign
@@ -72,14 +72,14 @@ public class CampaignService : ICampaignService
 
         if (campaign.Status != CampaignStatus.Draft)
         {
-            throw new InvalidOperationException("Sadece taslak durumundaki kampanyalar güncellenebilir");
+            throw new InvalidOperationException("Only draft campaigns can be updated");
         }
 
         // Email validation
         var invalidEmails = dto.Recipients.Where(email => !IsValidEmail(email)).ToList();
         if (invalidEmails.Any())
         {
-            throw new ArgumentException($"Geçersiz email adresleri: {string.Join(", ", invalidEmails)}");
+            throw new ArgumentException($"Invalid email addresses: {string.Join(", ", invalidEmails)}");
         }
 
         campaign.Name = dto.Name;
@@ -101,7 +101,7 @@ public class CampaignService : ICampaignService
 
         if (campaign.Status != CampaignStatus.Draft)
         {
-            throw new InvalidOperationException("Sadece taslak durumundaki kampanyalar silinebilir");
+            throw new InvalidOperationException("Only draft campaigns can be deleted");
         }
 
         await _repository.DeleteAsync(campaign);
@@ -118,7 +118,7 @@ public class CampaignService : ICampaignService
 
         if (campaign.Status != CampaignStatus.Draft)
         {
-            throw new InvalidOperationException("Sadece taslak durumundaki kampanyalar başlatılabilir");
+            throw new InvalidOperationException("Only draft campaigns can be started");
         }
 
         campaign.Status = CampaignStatus.Ready;
@@ -136,7 +136,7 @@ public class CampaignService : ICampaignService
         else
         {
             //Console write
-            _logger.LogInformation("EMAIL GÖNDERIM SIMÜLASYONU - Kampanya: {CampaignName}, Alıcılar: {Recipients}", 
+            _logger.LogInformation("EMAIL SENDING SIMULATION - Campaign: {CampaignName}, Recipients: {Recipients}", 
                 campaign.Name, string.Join(", ", campaign.Recipients));
         }
 

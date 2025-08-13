@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using EmailPush.Domain.Entities;
-using EmailPush.Domain.Interfaces;
-using MassTransit;
+using EmailPush.Application.Services;
+using EmailPush.Application.DTOs;
 
 namespace EmailPush.Controllers;
 
@@ -9,32 +9,29 @@ namespace EmailPush.Controllers;
 [Route("api/[controller]")]
 public class CampaignsController : ControllerBase
 {
-    private readonly ICampaignRepository _repository;
-    private readonly IPublishEndpoint? _publishEndpoint;
+    private readonly ICampaignService _campaignService;
     private readonly ILogger<CampaignsController> _logger;
 
     public CampaignsController(
-        ICampaignRepository repository, 
-        ILogger<CampaignsController> logger,
-        IPublishEndpoint? publishEndpoint = null)
+        ICampaignService campaignService,
+        ILogger<CampaignsController> logger)
     {
-        _repository = repository;
+        _campaignService = campaignService;
         _logger = logger;
-        _publishEndpoint = publishEndpoint;
     }
 
 
     [HttpGet]
-    public async Task<ActionResult<List<Campaign>>> GetAll()
+    public async Task<ActionResult<List<CampaignDto>>> GetAll()
     {
-        var campaigns = await _repository.GetAllAsync();
-        return Ok(campaigns.ToList());
+        var campaigns = await _campaignService.GetAllAsync();
+        return Ok(campaigns);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Campaign>> GetById(Guid id)
+    public async Task<ActionResult<CampaignDto>> GetById(Guid id)
     {
-        var campaign = await _repository.GetByIdAsync(id);
+        var campaign = await _campaignService.GetByIdAsync(id);
         if (campaign == null)
             return NotFound();
 
@@ -43,116 +40,86 @@ public class CampaignsController : ControllerBase
 
 
     [HttpPost]
-    public async Task<ActionResult<Campaign>> Create(Campaign campaign)
+    public async Task<ActionResult<CampaignDto>> Create(CreateCampaignDto dto)
     {
-        if (string.IsNullOrEmpty(campaign.Name))
-            return BadRequest("Campaign name is required");
-
-        if (campaign.Recipients == null || campaign.Recipients.Count == 0)
-            return BadRequest("At least one recipient is required");
-
-        campaign.Id = Guid.NewGuid();
-        campaign.CreatedAt = DateTime.UtcNow;
-        campaign.Status = CampaignStatus.Draft;
-        campaign.SentCount = 0;
-
-        var created = await _repository.AddAsync(campaign);
-        _logger.LogInformation("Campaign created: {CampaignId}", created.Id);
-        
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        try
+        {
+            var created = await _campaignService.CreateAsync(dto);
+            _logger.LogInformation("Campaign created: {CampaignId}", created.Id);
+            
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<Campaign>> Update(Guid id, Campaign campaign)
+    public async Task<ActionResult<CampaignDto>> Update(Guid id, CreateCampaignDto dto)
     {
-        var existing = await _repository.GetByIdAsync(id);
-        if (existing == null)
-            return NotFound();
+        try
+        {
+            var updated = await _campaignService.UpdateAsync(id, dto);
+            if (updated == null)
+                return NotFound();
 
-        if (existing.Status != CampaignStatus.Draft)
-            return BadRequest("Only draft campaigns can be updated");
-
-        existing.Name = campaign.Name;
-        existing.Subject = campaign.Subject;
-        existing.Content = campaign.Content;
-        existing.Recipients = campaign.Recipients;
-
-        await _repository.UpdateAsync(existing);
-        _logger.LogInformation("Campaign updated: {CampaignId}", existing.Id);
-        
-        return Ok(existing);
+            _logger.LogInformation("Campaign updated: {CampaignId}", updated.Id);
+            return Ok(updated);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(Guid id)
     {
-        var campaign = await _repository.GetByIdAsync(id);
-        if (campaign == null)
-            return NotFound();
+        try
+        {
+            var result = await _campaignService.DeleteAsync(id);
+            if (!result)
+                return NotFound();
 
-        if (campaign.Status != CampaignStatus.Draft)
-            return BadRequest("Only draft campaigns can be deleted");
-
-        await _repository.DeleteAsync(campaign);
-        _logger.LogInformation("Campaign deleted: {CampaignId}", id);
-        
-        return NoContent();
+            _logger.LogInformation("Campaign deleted: {CampaignId}", id);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPost("{id}/start")]
     public async Task<ActionResult> StartSending(Guid id)
     {
-        var campaign = await _repository.GetByIdAsync(id);
-        if (campaign == null)
-            return NotFound();
-
-        if (campaign.Status != CampaignStatus.Draft)
-            return BadRequest("Only draft campaigns can be started");
-
-        campaign.Status = CampaignStatus.Ready;
-        campaign.StartedAt = DateTime.UtcNow;
-        
-        await _repository.UpdateAsync(campaign);
-
-        // Send to queue for processing
-        if (_publishEndpoint != null)
+        try
         {
-            await _publishEndpoint.Publish(new
-            {
-                CampaignId = campaign.Id,
-                Recipients = campaign.Recipients,
-                Subject = campaign.Subject,
-                Content = campaign.Content
-            });
-        }
-        else
-        {
-            // Simulate queue processing
-            _logger.LogInformation("EMAIL SIMULATION - Campaign: {CampaignName}, Recipients: {RecipientCount}", 
-                campaign.Name, campaign.Recipients.Count);
-        }
+            var result = await _campaignService.StartSendingAsync(id);
+            if (!result)
+                return NotFound();
 
-        _logger.LogInformation("Campaign started: {CampaignId}", id);
-        return Ok();
+            _logger.LogInformation("Campaign started: {CampaignId}", id);
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
 
     [HttpGet("stats")]
-    public async Task<ActionResult> GetStats()
+    public async Task<ActionResult<CampaignStatsDto>> GetStats()
     {
-        var campaigns = await _repository.GetAllAsync();
-        var campaignsList = campaigns.ToList();
-
-        var stats = new
-        {
-            TotalCampaigns = campaignsList.Count,
-            DraftCampaigns = campaignsList.Count(c => c.Status == CampaignStatus.Draft),
-            CompletedCampaigns = campaignsList.Count(c => c.Status == CampaignStatus.Completed),
-            TotalEmailsSent = campaignsList.Sum(c => c.SentCount)
-        };
-
+        var stats = await _campaignService.GetStatsAsync();
         return Ok(stats);
     }
 }

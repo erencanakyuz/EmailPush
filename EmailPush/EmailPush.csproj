@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EmailPush.Domain\EmailPush.Domain.csproj" />
     <ProjectReference Include="..\EmailPush.Infrastructure\EmailPush.Infrastructure.csproj" />
+    <ProjectReference Include="..\EmailPush.Application\EmailPush.Application.csproj" />
   </ItemGroup>
 
 </Project>

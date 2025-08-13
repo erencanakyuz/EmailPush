@@ -1,6 +1,7 @@
 using EmailPush.Infrastructure.Data;
 using EmailPush.Domain.Interfaces;
 using EmailPush.Infrastructure.Repositories;
+using EmailPush.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -25,6 +26,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Repository
 builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
+
+// Application Services
+builder.Services.AddScoped<ICampaignService, CampaignService>();
 
 // MassTransit (RabbitMQ) - Optional for now // we will use and test it for later
 /*
