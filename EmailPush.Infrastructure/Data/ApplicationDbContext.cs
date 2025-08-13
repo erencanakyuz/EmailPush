@@ -21,7 +21,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Subject).IsRequired().HasMaxLength(500);
             entity.Property(e => e.Content).IsRequired();
 
-            // Recipients'i JSON olarak sakla
+            // Recipients'i CSV olarak sakla
             entity.Property(e => e.Recipients)
                 .HasConversion(
                     v => string.Join(',', v),

@@ -7,18 +7,12 @@
     <UserSecretsId>dotnet-EmailPush.Worker-11f7cdd0-c17c-42a6-a281-a0dd183d8f19</UserSecretsId>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Consumers\**" />
-    <Content Remove="Consumers\**" />
-    <EmbeddedResource Remove="Consumers\**" />
-    <None Remove="Consumers\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     <PackageReference Include="MassTransit" Version="8.0.0" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
