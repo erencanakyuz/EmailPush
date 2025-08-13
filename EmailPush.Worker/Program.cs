@@ -9,7 +9,7 @@ var builder = Host.CreateApplicationBuilder(args);
 
 // Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Repository
 builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
