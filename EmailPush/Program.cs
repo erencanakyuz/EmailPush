@@ -55,6 +55,13 @@ builder.Services.AddMassTransit(x =>
 
 var app = builder.Build();
 
+// Ensure database is created
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.EnsureCreated();
+}
+
 // Configure pipeline
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
