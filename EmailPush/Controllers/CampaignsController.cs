@@ -21,14 +21,26 @@ public class CampaignsController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Get all email campaigns
+    /// </summary>
+    /// <returns>List of all campaigns</returns>
     [HttpGet]
+    [ProducesResponseType(typeof(List<CampaignDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<CampaignDto>>> GetAll()
     {
         var campaigns = await _campaignService.GetAllAsync();
         return Ok(campaigns);
     }
 
+    /// <summary>
+    /// Get a specific campaign by ID
+    /// </summary>
+    /// <param name="id">Campaign unique identifier</param>
+    /// <returns>Campaign details</returns>
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(CampaignDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CampaignDto>> GetById(Guid id)
     {
         var campaign = await _campaignService.GetByIdAsync(id);
@@ -39,7 +51,16 @@ public class CampaignsController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Create a new email campaign
+    /// </summary>
+    /// <param name="dto">Campaign creation data</param>
+    /// <returns>Created campaign</returns>
+    /// <response code="201">Campaign created successfully</response>
+    /// <response code="400">Invalid campaign data or email addresses</response>
     [HttpPost]
+    [ProducesResponseType(typeof(CampaignDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CampaignDto>> Create(CreateCampaignDto dto)
     {
         try
@@ -56,7 +77,19 @@ public class CampaignsController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Update an existing campaign (only draft campaigns)
+    /// </summary>
+    /// <param name="id">Campaign unique identifier</param>
+    /// <param name="dto">Updated campaign data</param>
+    /// <returns>Updated campaign</returns>
+    /// <response code="200">Campaign updated successfully</response>
+    /// <response code="400">Invalid data or campaign not in draft status</response>
+    /// <response code="404">Campaign not found</response>
     [HttpPut("{id}")]
+    [ProducesResponseType(typeof(CampaignDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CampaignDto>> Update(Guid id, CreateCampaignDto dto)
     {
         try
@@ -79,7 +112,18 @@ public class CampaignsController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Delete a campaign (only draft campaigns)
+    /// </summary>
+    /// <param name="id">Campaign unique identifier</param>
+    /// <returns>No content</returns>
+    /// <response code="204">Campaign deleted successfully</response>
+    /// <response code="400">Campaign not in draft status</response>
+    /// <response code="404">Campaign not found</response>
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(Guid id)
     {
         try
@@ -97,7 +141,18 @@ public class CampaignsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Start sending emails for a campaign
+    /// </summary>
+    /// <param name="id">Campaign unique identifier</param>
+    /// <returns>Success confirmation</returns>
+    /// <response code="200">Campaign started successfully</response>
+    /// <response code="400">Campaign not in draft status</response>
+    /// <response code="404">Campaign not found</response>
     [HttpPost("{id}/start")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> StartSending(Guid id)
     {
         try
@@ -116,7 +171,12 @@ public class CampaignsController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Get campaign statistics
+    /// </summary>
+    /// <returns>Statistics including total campaigns, emails sent, etc.</returns>
     [HttpGet("stats")]
+    [ProducesResponseType(typeof(CampaignStatsDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<CampaignStatsDto>> GetStats()
     {
         var stats = await _campaignService.GetStatsAsync();

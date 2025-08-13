@@ -2,9 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EmailPush.Application.DTOs;
 
-
+/// <summary>
 /// Campaign Data Transfer Object
-/// API den dönen kampanya bilgileri
+/// Campaign information returned from API
+/// </summary>
 
 public class CampaignDto
 {
@@ -21,53 +22,97 @@ public class CampaignDto
 }
 
 
-/// Yeni kampanya oluşturma için DTO
+/// <summary>
+/// DTO for creating new campaigns
+/// </summary>
 
 public class CreateCampaignDto
 {
 
-    /// Kampanya adı (maksimum 200 karakter)
-    
-    /// <example>Hoş Geldin Kampanyası</example>
-    [Required(ErrorMessage = "Kampanya adı zorunludur")]
-    [StringLength(200, ErrorMessage = "Kampanya adı maksimum 200 karakter olabilir")]
+    /// <summary>
+    /// Campaign name (maximum 200 characters)
+    /// </summary>
+    /// <example>Welcome Campaign</example>
+    [Required(ErrorMessage = "Campaign name is required")]
+    [StringLength(200, ErrorMessage = "Campaign name can be maximum 200 characters")]
     public string Name { get; set; } = string.Empty;
 
-   
-    /// Email konusu (maksimum 500 karakter)
-
-    [Required(ErrorMessage = "Email konusu zorunludur")]
-    [StringLength(500, ErrorMessage = "Email konusu maksimum 500 karakter olabilir")]
+    /// <summary>
+    /// Email subject (maximum 500 characters)
+    /// </summary>
+    /// <example>Welcome to our platform!</example>
+    [Required(ErrorMessage = "Email subject is required")]
+    [StringLength(500, ErrorMessage = "Email subject can be maximum 500 characters")]
     public string Subject { get; set; } = string.Empty;
 
-  
-    /// Email içeriği
-
-    /// <example>Merhaba! Sitemize hoş geldiniz. Bu bir test email kampanyasıdır.</example>
-    [Required(ErrorMessage = "Email içeriği zorunludur")]
-    [MinLength(10, ErrorMessage = "Email içeriği en az 10 karakter olmalıdır")]
+    /// <summary>
+    /// Email content
+    /// </summary>
+    /// <example>Hello! Welcome to our platform. This is a test email campaign.</example>
+    [Required(ErrorMessage = "Email content is required")]
+    [MinLength(10, ErrorMessage = "Email content must be at least 10 characters")]
     public string Content { get; set; } = string.Empty;
 
-   
-    /// Alıcı email adresleri listesi (maksimum 1000 adet)
-   
+    /// <summary>
+    /// List of recipient email addresses (maximum 1000)
+    /// </summary>
     /// <example>["test@example.com", "user@example.com"]</example>
-    [Required(ErrorMessage = "En az bir alıcı gereklidir")]
-    [MinLength(1, ErrorMessage = "En az bir alıcı gereklidir")]
+    [Required(ErrorMessage = "At least one recipient is required")]
+    [MinLength(1, ErrorMessage = "At least one recipient is required")]
     public List<string> Recipients { get; set; } = new();
 }
 
 
-/// Kampanya istatistikleri
-
+/// <summary>
+/// Campaign statistics
+/// </summary>
 public class CampaignStatsDto
 {
+    /// <summary>
+    /// Total number of campaigns
+    /// </summary>
+    /// <example>25</example>
     public int TotalCampaigns { get; set; }
+    
+    /// <summary>
+    /// Number of draft campaigns
+    /// </summary>
+    /// <example>5</example>
     public int DraftCampaigns { get; set; }
+    
+    /// <summary>
+    /// Number of ready campaigns
+    /// </summary>
+    /// <example>3</example>
     public int ReadyCampaigns { get; set; }
+    
+    /// <summary>
+    /// Number of campaigns currently sending
+    /// </summary>
+    /// <example>2</example>
     public int SendingCampaigns { get; set; }
+    
+    /// <summary>
+    /// Number of completed campaigns
+    /// </summary>
+    /// <example>12</example>
     public int CompletedCampaigns { get; set; }
+    
+    /// <summary>
+    /// Number of failed campaigns
+    /// </summary>
+    /// <example>3</example>
     public int FailedCampaigns { get; set; }
+    
+    /// <summary>
+    /// Total emails sent across all campaigns
+    /// </summary>
+    /// <example>15420</example>
     public int TotalEmailsSent { get; set; }
+    
+    /// <summary>
+    /// Total recipients across all campaigns
+    /// </summary>
+    /// <example>18500</example>
     public int TotalRecipients { get; set; }
 }
