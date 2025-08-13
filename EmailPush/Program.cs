@@ -2,6 +2,7 @@ using EmailPush.Infrastructure.Data;
 using EmailPush.Domain.Interfaces;
 using EmailPush.Infrastructure.Repositories;
 using EmailPush.Application.Services;
+using EmailPush.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -55,6 +56,8 @@ builder.Services.AddMassTransit(x =>
 var app = builder.Build();
 
 // Configure pipeline
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
