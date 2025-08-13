@@ -2,6 +2,7 @@ using EmailPush.Application.DTOs;
 using EmailPush.Domain.Entities;
 using EmailPush.Domain.Interfaces;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 
 namespace EmailPush.Application.Services;
 
