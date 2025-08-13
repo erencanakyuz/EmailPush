@@ -43,3 +43,6 @@ batch ile gönderme emailleri ya da nasıl kullanabilirsek,(tartışılabilir)
 post request kullan get le gondertme mail (tartışılabilir)
 default hizli gonderme (tartışılabilir)
 api genis olsun, opsiyon bol olsun (tartışılabilir)
+
+
+TODO: kampanya duzenleme ekranında mevcut verinin otomatik oalrak doldurulmasu gerekiyor bence tartışalım PUT/api/Campaigns/{id} bu kısımda,
