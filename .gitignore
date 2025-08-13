@@ -430,3 +430,6 @@ FodyWeavers.xsd
 # Claude Code files
 .claude/
 .claude.json*
+
+# Internal notes and checklists
+CheckList.md
