@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
 
-namespace EmailPush.Middleware;
+namespace EmailPush.Api.Middleware;
 
 public class ErrorHandlingMiddleware
 {

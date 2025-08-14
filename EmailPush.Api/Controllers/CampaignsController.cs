@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using EmailPush.Application.Services;
 using EmailPush.Application.DTOs;
 
-namespace EmailPush.Controllers;
+namespace EmailPush.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

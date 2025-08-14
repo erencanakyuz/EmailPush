@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35818.85 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailPush", "EmailPush\EmailPush.csproj", "{B20B5F46-A170-43DC-9F4F-28959EFECB99}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailPush.Api", "EmailPush.Api\EmailPush.Api.csproj", "{B20B5F46-A170-43DC-9F4F-28959EFECB99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailPush.Domain", "EmailPush.Domain\EmailPush.Domain.csproj", "{BE98B06D-0CC0-4D9F-BEFC-55EE4F2D1DD0}"
 EndProject

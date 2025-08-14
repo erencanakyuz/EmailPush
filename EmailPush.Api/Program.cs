@@ -2,7 +2,7 @@ using EmailPush.Infrastructure.Data;
 using EmailPush.Domain.Interfaces;
 using EmailPush.Infrastructure.Repositories;
 using EmailPush.Application.Services;
-using EmailPush.Middleware;
+using EmailPush.Api.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
