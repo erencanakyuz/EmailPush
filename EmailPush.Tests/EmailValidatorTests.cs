@@ -10,13 +10,13 @@ public class EmailValidatorTests
     [TestCase("invalid-email", false, "No @ symbol")]
     [TestCase("", false, "Empty string")]
     [TestCase(null, false, "Null value")]
-    public void IsValidEmail_ShouldReturnExpectedResult_ForGivenInput(string email, bool expectedResult, string description)
+    public void IsValidEmail_ReturnsCorrectResult(string email, bool expectedResult, string description)
     {
         // Act
         var result = EmailValidator.IsValidEmail(email);
 
         // Assert
-        Assert.That(result, Is.EqualTo(expectedResult), $"Test açıklaması: {description}");
+        Assert.That(result, Is.EqualTo(expectedResult), description);
     }
 
 }

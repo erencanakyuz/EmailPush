@@ -50,7 +50,7 @@ public class CampaignService : ICampaignService
 
         var campaign = CampaignMapper.FromCreateDto(dto);
         var created = await _repository.AddAsync(campaign);
-        _logger.LogInformation("Yeni kampanya oluşturuldu: {CampaignId} - {CampaignName}", created.Id, created.Name);
+        _logger.LogInformation("Campaign created: {CampaignId} - {CampaignName}", created.Id, created.Name);
         
         return CampaignMapper.ToDto(created);
     }
@@ -75,7 +75,7 @@ public class CampaignService : ICampaignService
 
         CampaignMapper.UpdateFromDto(campaign, dto);
         await _repository.UpdateAsync(campaign);
-        _logger.LogInformation("Kampanya güncellendi: {CampaignId} - {CampaignName}", campaign.Id, campaign.Name);
+        _logger.LogInformation("Campaign updated: {CampaignId} - {CampaignName}", campaign.Id, campaign.Name);
 
         return CampaignMapper.ToDto(campaign);
     }
@@ -92,7 +92,7 @@ public class CampaignService : ICampaignService
         }
 
         await _repository.DeleteAsync(campaign);
-        _logger.LogInformation("Kampanya silindi: {CampaignId} - {CampaignName}", campaign.Id, campaign.Name);
+        _logger.LogInformation("Campaign deleted: {CampaignId} - {CampaignName}", campaign.Id, campaign.Name);
 
         return true;
     }
@@ -112,7 +112,7 @@ public class CampaignService : ICampaignService
         campaign.StartedAt = DateTime.UtcNow;
         await _repository.UpdateAsync(campaign);
 
-        _logger.LogInformation("Kampanya başlatıldı: {CampaignId} - {CampaignName}, Alıcı sayısı: {RecipientCount}", 
+        _logger.LogInformation("Campaign started: {CampaignId} - {CampaignName}, Recipients: {RecipientCount}", 
             campaign.Id, campaign.Name, campaign.Recipients.Count);
 
         // RabbitMQ is here we will consider is further use for later

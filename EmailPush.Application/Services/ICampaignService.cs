@@ -3,43 +3,42 @@ using EmailPush.Application.DTOs;
 namespace EmailPush.Application.Services;
 
 /// <summary>
-/// Campaign Service Interface
-/// Kampanya işlemleri için servis arayüzü
+/// Service for managing email campaigns
 /// </summary>
 public interface ICampaignService
 {
     /// <summary>
-    /// Kampanya ID'sine göre kampanya getirir
+    /// Gets campaign by ID
     /// </summary>
     Task<CampaignDto?> GetByIdAsync(Guid id);
 
     /// <summary>
-    /// Tüm kampanyaları listeler
+    /// Gets all campaigns
     /// </summary>
     Task<List<CampaignDto>> GetAllAsync();
 
     /// <summary>
-    /// Yeni kampanya oluşturur
+    /// Creates a new campaign
     /// </summary>
     Task<CampaignDto> CreateAsync(CreateCampaignDto dto);
 
     /// <summary>
-    /// Kampanya günceller (sadece draft durumundaki kampanyalar)
+    /// Updates campaign (draft only)
     /// </summary>
     Task<CampaignDto?> UpdateAsync(Guid id, CreateCampaignDto dto);
 
     /// <summary>
-    /// Kampanya siler (sadece draft durumundaki kampanyalar)
+    /// Deletes campaign (draft only)
     /// </summary>
     Task<bool> DeleteAsync(Guid id);
 
     /// <summary>
-    /// Kampanya gönderimini başlatır
+    /// Starts campaign sending
     /// </summary>
     Task<bool> StartSendingAsync(Guid id);
 
     /// <summary>
-    /// Kampanya istatistiklerini getirir
+    /// Gets campaign stats
     /// </summary>
     Task<CampaignStatsDto> GetStatsAsync();
 }

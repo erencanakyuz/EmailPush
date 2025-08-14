@@ -4,19 +4,15 @@ using EmailPush.Domain.Entities;
 namespace EmailPush.Application.Utils;
 
 /// <summary>
-/// Campaign mapping utility class
-/// Handles conversion between Campaign entities and DTOs
+/// Converts campaigns to/from DTOs
 /// </summary>
 public static class CampaignMapper
 {
     /// <summary>
-    /// Maps Campaign entity to CampaignDto
+    /// Converts campaign to DTO
     /// </summary>
-    /// <param name="campaign">Campaign entity to map</param>
-    /// <returns>Mapped CampaignDto</returns>
     public static CampaignDto ToDto(Campaign campaign)
     {
-        ArgumentNullException.ThrowIfNull(campaign);
 
         return new CampaignDto
         {
@@ -39,7 +35,6 @@ public static class CampaignMapper
     /// <returns>List of mapped CampaignDto objects</returns>
     public static List<CampaignDto> ToDtoList(IEnumerable<Campaign> campaigns)
     {
-        ArgumentNullException.ThrowIfNull(campaigns);
         return campaigns.Select(ToDto).ToList();
     }
 
@@ -50,7 +45,6 @@ public static class CampaignMapper
     /// <returns>Mapped Campaign entity</returns>
     public static Campaign FromCreateDto(CreateCampaignDto dto)
     {
-        ArgumentNullException.ThrowIfNull(dto);
 
         return new Campaign
         {
@@ -72,8 +66,6 @@ public static class CampaignMapper
     /// <param name="updateDto">Update data</param>
     public static void UpdateFromDto(Campaign existingCampaign, CreateCampaignDto updateDto)
     {
-        ArgumentNullException.ThrowIfNull(existingCampaign);
-        ArgumentNullException.ThrowIfNull(updateDto);
 
         existingCampaign.Name = updateDto.Name;
         existingCampaign.Subject = updateDto.Subject;

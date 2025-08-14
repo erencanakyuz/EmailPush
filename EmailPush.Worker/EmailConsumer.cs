@@ -31,10 +31,10 @@ public class EmailConsumer : IConsumer<EmailCampaignMessage>
         campaign.Status = CampaignStatus.Sending;
         await _repository.UpdateAsync(campaign);
 
-        // Email gönderimini simüle et
+        // Simulate email sending
         foreach (var recipient in message.Recipients)
         {
-            await Task.Delay(100); // Simülasyon için
+            await Task.Delay(100); // Simulation delay
             _logger.LogInformation($"Email sent to: {recipient}");
             
             campaign.SentCount++;
