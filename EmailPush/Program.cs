@@ -17,8 +17,8 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "EmailPush API",
-        Version = "v1",
-        Description = "Simple Email Campaign Push System"
+        Version = "v1.3",
+        Description = "Email PUSH API"
     });
     
     // Include XML comments

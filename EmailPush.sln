@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailPush.Infrastructure", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailPush.Worker", "EmailPush.Worker\EmailPush.Worker.csproj", "{AB2DCAF1-C568-406A-9E4A-562E2B1B09C4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailPush.Tests", "EmailPush.Tests\EmailPush.Tests.csproj", "{C8E4F2B5-D123-4567-8901-234567890ABC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{AB2DCAF1-C568-406A-9E4A-562E2B1B09C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB2DCAF1-C568-406A-9E4A-562E2B1B09C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB2DCAF1-C568-406A-9E4A-562E2B1B09C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8E4F2B5-D123-4567-8901-234567890ABC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8E4F2B5-D123-4567-8901-234567890ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8E4F2B5-D123-4567-8901-234567890ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8E4F2B5-D123-4567-8901-234567890ABC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

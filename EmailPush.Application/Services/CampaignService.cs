@@ -1,4 +1,5 @@
 using EmailPush.Application.DTOs;
+using EmailPush.Application.Utils;
 using EmailPush.Domain.Entities;
 using EmailPush.Domain.Interfaces;
 using MassTransit;
@@ -29,40 +30,29 @@ public class CampaignService : ICampaignService
     public async Task<CampaignDto?> GetByIdAsync(Guid id)
     {
         var campaign = await _repository.GetByIdAsync(id);
-        return campaign != null ? MapToDto(campaign) : null;
+        return campaign != null ? CampaignMapper.ToDto(campaign) : null;
     }
 
     public async Task<List<CampaignDto>> GetAllAsync()
     {
         var campaigns = await _repository.GetAllAsync();
-        return campaigns.Select(MapToDto).ToList();
+        return CampaignMapper.ToDtoList(campaigns);
     }
 
     public async Task<CampaignDto> CreateAsync(CreateCampaignDto dto)
     {
         // Email validation
-        var invalidEmails = dto.Recipients.Where(email => !IsValidEmail(email)).ToList();
+        var invalidEmails = EmailValidator.GetInvalidEmails(dto.Recipients);
         if (invalidEmails.Any())
         {
             throw new ArgumentException($"Invalid email addresses: {string.Join(", ", invalidEmails)}");
         }
 
-        var campaign = new Campaign
-        {
-            Id = Guid.NewGuid(),
-            Name = dto.Name,
-            Subject = dto.Subject,
-            Content = dto.Content,
-            Recipients = dto.Recipients,
-            Status = CampaignStatus.Draft,
-            CreatedAt = DateTime.UtcNow,
-            SentCount = 0
-        };
-
+        var campaign = CampaignMapper.FromCreateDto(dto);
         var created = await _repository.AddAsync(campaign);
         _logger.LogInformation("Yeni kampanya oluşturuldu: {CampaignId} - {CampaignName}", created.Id, created.Name);
         
-        return MapToDto(created);
+        return CampaignMapper.ToDto(created);
     }
 
     public async Task<CampaignDto?> UpdateAsync(Guid id, CreateCampaignDto dto)
@@ -77,21 +67,17 @@ public class CampaignService : ICampaignService
         }
 
         // Email validation
-        var invalidEmails = dto.Recipients.Where(email => !IsValidEmail(email)).ToList();
+        var invalidEmails = EmailValidator.GetInvalidEmails(dto.Recipients);
         if (invalidEmails.Any())
         {
             throw new ArgumentException($"Invalid email addresses: {string.Join(", ", invalidEmails)}");
         }
 
-        campaign.Name = dto.Name;
-        campaign.Subject = dto.Subject;
-        campaign.Content = dto.Content;
-        campaign.Recipients = dto.Recipients;
-
+        CampaignMapper.UpdateFromDto(campaign, dto);
         await _repository.UpdateAsync(campaign);
         _logger.LogInformation("Kampanya güncellendi: {CampaignId} - {CampaignName}", campaign.Id, campaign.Name);
 
-        return MapToDto(campaign);
+        return CampaignMapper.ToDto(campaign);
     }
 
     public async Task<bool> DeleteAsync(Guid id)
@@ -162,32 +148,4 @@ public class CampaignService : ICampaignService
         };
     }
 
-    private static CampaignDto MapToDto(Campaign campaign)
-    {
-        return new CampaignDto
-        {
-            Id = campaign.Id,
-            Name = campaign.Name,
-            Subject = campaign.Subject,
-            Content = campaign.Content,
-            Recipients = campaign.Recipients,
-            Status = campaign.Status.ToString(),
-            CreatedAt = campaign.CreatedAt,
-            StartedAt = campaign.StartedAt,
-            SentCount = campaign.SentCount
-        };
-    }
-
-    private static bool IsValidEmail(string email)
-    {
-        try
-        {
-            var addr = new System.Net.Mail.MailAddress(email);
-            return addr.Address == email;
-        }
-        catch
-        {
-            return false;
-        }
-    }
 }
