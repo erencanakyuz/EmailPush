@@ -1,4 +1,5 @@
 using EmailPush.Application.DTOs;
+using EmailPush.Domain.Entities;
 
 namespace EmailPush.Application.Services;
 
@@ -18,14 +19,20 @@ public interface ICampaignService
     Task<List<CampaignDto>> GetAllAsync();
 
     /// <summary>
+    /// Gets campaigns by status
+    /// </summary>
+    Task<List<CampaignDto>> GetCampaignsByStatusAsync(CampaignStatus status);
+
+    /// <summary>
     /// Creates a new campaign
     /// </summary>
     Task<CampaignDto> CreateAsync(CreateCampaignDto dto);
 
     /// <summary>
-    /// Updates campaign (draft only)
+    /// Updates campaign (draft only) - Full replacement
     /// </summary>
     Task<CampaignDto?> UpdateAsync(Guid id, CreateCampaignDto dto);
+
 
     /// <summary>
     /// Deletes campaign (draft only)

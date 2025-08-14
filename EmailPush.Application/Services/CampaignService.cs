@@ -39,6 +39,13 @@ public class CampaignService : ICampaignService
         return CampaignMapper.ToDtoList(campaigns);
     }
 
+    public async Task<List<CampaignDto>> GetCampaignsByStatusAsync(CampaignStatus status)
+    {
+        var campaigns = await _repository.GetAllAsync();
+        var filteredCampaigns = campaigns.Where(c => c.Status == status);
+        return CampaignMapper.ToDtoList(filteredCampaigns);
+    }
+
     public async Task<CampaignDto> CreateAsync(CreateCampaignDto dto)
     {
         // Email validation
@@ -79,6 +86,7 @@ public class CampaignService : ICampaignService
 
         return CampaignMapper.ToDto(campaign);
     }
+
 
     public async Task<bool> DeleteAsync(Guid id)
     {

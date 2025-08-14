@@ -21,13 +21,19 @@ public class CampaignsController : ControllerBase
 
 
     /// <summary>
-    /// Get all email campaigns
+    /// Get all email campaigns with optional status filter
     /// </summary>
-    /// <returns>List of all campaigns</returns>
+    /// <param name="status">Filter by status: 0=Draft, 1=Ready, 2=Sending, 3=Completed, 4=Failed</param>
     [HttpGet]
     [ProducesResponseType(typeof(List<CampaignDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<CampaignDto>>> GetAll()
+    public async Task<ActionResult<List<CampaignDto>>> GetCampaigns([FromQuery] CampaignStatus? status = null)
     {
+        if (status.HasValue)
+        {
+            var filteredCampaigns = await _campaignService.GetCampaignsByStatusAsync(status.Value);
+            return Ok(filteredCampaigns);
+        }
+        
         var campaigns = await _campaignService.GetAllAsync();
         return Ok(campaigns);
     }
@@ -80,7 +86,7 @@ public class CampaignsController : ControllerBase
     /// Update an existing campaign (only draft campaigns)
     /// </summary>
     /// <param name="id">Campaign unique identifier</param>
-    /// <param name="dto">Updated campaign data</param>
+    /// <param name="dto">Campaign data</param>
     /// <returns>Updated campaign</returns>
     /// <response code="200">Campaign updated successfully</response>
     /// <response code="400">Invalid data or campaign not in draft status</response>
@@ -109,6 +115,7 @@ public class CampaignsController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
 
 
     /// <summary>

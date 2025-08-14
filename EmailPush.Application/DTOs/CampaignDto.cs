@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 
 
-// Bussines Layer, Application katmaný, Projenin beyni, gelen istekler iþlenir
-// kurallar uygulanýr, CampaignService.cs gibi servisler burada bulunur
-// Dýþ dünyadan gelen istekler Application katmanýna yönlendirilir DTOs kullanýlarak
+// Bussines Layer, Application katmanï¿½, Projenin beyni, gelen istekler iï¿½lenir
+// kurallar uygulanï¿½r, CampaignService.cs gibi servisler burada bulunur
+// Dï¿½ï¿½ dï¿½nyadan gelen istekler Application katmanï¿½na yï¿½nlendirilir DTOs kullanï¿½larak
 
 namespace EmailPush.Application.DTOs;
 
@@ -56,7 +56,6 @@ public class CreateCampaignDto
     /// </summary>
     /// <example>Hello! Welcome to our platform. This is a test email campaign.</example>
     [Required(ErrorMessage = "Email content is required")]
-    [MinLength(10, ErrorMessage = "Email content must be at least 10 characters")]
     public string Content { get; set; } = string.Empty;
 
     /// <summary>
