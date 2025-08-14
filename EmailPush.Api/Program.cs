@@ -7,6 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
+
+// EmailPush.Api projesi Presentation katmanýdýr, API LAYER,
+// Dýþ dünyadan gelen HTTP isteklerini karþýlar, UI(Swagger) ile sunar
+// Program.cs ile tüm uygulama baþlatýlýr. Worket dýþýnda dier projelerde bu yok
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services

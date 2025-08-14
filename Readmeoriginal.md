@@ -37,12 +37,35 @@ Projede Uygulanan Temel Yazılım geliştirme Kavramları ve Prensipleri
  (Domain, Application, Infrastructure, API): Her katmanın belirli bir sorumluluğu var ve diğer katmanlara olan bağımlılığı minimize ediliyor.
 
 Bağımlılıkların yönü: Bağımlılıklar daima içe doğru, yani Domain katmanına doğru. Dış katmanlar iç katmanları tanır, ancak tam tersi olmaz.
++-------------------------------------------------------------+
+|                                                             |
+|   +-----------+      +------------+      +----------------+ |
+|   |    API    |----->| Application|----->|     Domain     | |
+|   +-----------+      +------------+      +----------------+ |
+|                            ^                      ^         |
+|                            |                      |         |
+|   +-----------+      +----------------+           |         |
+|   |  Worker   |----->| Infrastructure |-----------+         |
+|   +-----------+      +----------------+                     |
+|                                                             |
++-------------------------------------------------------------+
+
 
 2-Domain-Driven Design (DDD)
 
 Domain katmanı: İş kurallarını ve varlıklarını (entity) temsil eden sınıflar burada yer alır.
 Ubiquitous Language (Her Yerde Aynı Dil): Projede kullanılan terimlerin (örneğin "Campaign", "Draft", "Ready") iş alanıyla uyumlu olması.
 Kullanım Alanları: Özellikle Domain katmanında, iş kurallarının ve varlıkların modellenmesinde.
+
+EmailPush (API) ve EmailPush.Worker → Presentation Layer
+EmailPush.Application → Application Layer
+EmailPush.Domain → Domain Layer
+EmailPush.Infrastructure → Infrastructure Layer
+
+Ortak Dil: Kodda kullandığım Campaign, Status (Draft, Ready vb.) gibi isimlerin, işi tarif eden gerçek dünyadaki kavramlarla birebir aynı olmasına özen gösterdim. Bu, kodun amacını daha anlaşılır kılıyor.
+Katmanlı Yapı: DDD'nin önerdiği gibi, işin kalbi olan Domain katmanını (EmailPush.Domain) tüm teknoloji detaylarından izole ettim. İş akışlarını Application katmanında (CampaignService) yönettin.
+Model: Projenin ana nesnesi olan Campaign'i, kendine ait bir kimliği olan bir Entity olarak modelledim.
+Soyutlama: Veritabanı erişimini ise Repository Pattern kullanarak tamamen soyutladım. Bu sayede CampaignService gibi iş mantığı sınıflarım, veritabanının ne olduğundan habersiz bir şekilde çalışabiliyor."
 
 3- Dependency Injection
 

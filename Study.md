@@ -786,3 +786,9 @@ Bu proje şu konularda güçlü temel sağlıyor:
 🔄 Monitoring & logging
 
 Bu analiz, projenin her detayını mentoruna açıkça sunabilmen için hazırlandı. Her kod parçasının neden bu şekilde yazıldığını, alternatif yaklaşımları ve ilerde nasıl geliştirilebileceğini açıklayabilirsin.
+
+
+
+
+NOT: 
+Entity, domain içindeki kimliği (Id) olan, zamanla durumu değişebilen ve kuralları barındıran iş nesnesidir. CANLI DEĞİŞKEN
