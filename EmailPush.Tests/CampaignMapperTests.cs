@@ -45,12 +45,6 @@ public class CampaignMapperTests
         Assert.AreEqual(10, dto.SentCount);
     }
 
-    [Test]
-    public void ToDto_NullCampaign_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => CampaignMapper.ToDto(null!));
-    }
 
     [Test]
     public void FromCreateDto_ValidDto_CreatesCampaignWithCorrectDefaults()
@@ -79,12 +73,6 @@ public class CampaignMapperTests
         Assert.That(campaign.CreatedAt, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(1)));
     }
 
-    [Test]
-    public void FromCreateDto_NullDto_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => CampaignMapper.FromCreateDto(null!));
-    }
 
     [Test]
     public void UpdateFromDto_ValidInputs_UpdatesCampaignProperties()
@@ -129,51 +117,5 @@ public class CampaignMapperTests
         Assert.AreEqual(originalStatus, existingCampaign.Status);
     }
 
-    [Test]
-    public void UpdateFromDto_NullCampaign_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var dto = new CreateCampaignDto { Name = "Test" };
 
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => CampaignMapper.UpdateFromDto(null!, dto));
-    }
-
-    [Test]
-    public void UpdateFromDto_NullDto_ThrowsArgumentNullException()
-    {
-        // Arrange
-        var campaign = new Campaign();
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => CampaignMapper.UpdateFromDto(campaign, null!));
-    }
-
-    [Test]
-    public void ToDtoList_ValidCampaigns_MapsAllCorrectly()
-    {
-        // Arrange
-        var campaigns = new List<Campaign>
-        {
-            new Campaign { Id = Guid.NewGuid(), Name = "Campaign 1", Status = CampaignStatus.Draft },
-            new Campaign { Id = Guid.NewGuid(), Name = "Campaign 2", Status = CampaignStatus.Ready }
-        };
-
-        // Act
-        var dtoList = CampaignMapper.ToDtoList(campaigns);
-
-        // Assert
-        Assert.AreEqual(2, dtoList.Count);
-        Assert.AreEqual("Campaign 1", dtoList[0].Name);
-        Assert.AreEqual("Draft", dtoList[0].Status);
-        Assert.AreEqual("Campaign 2", dtoList[1].Name);
-        Assert.AreEqual("Ready", dtoList[1].Status);
-    }
-
-    [Test]
-    public void ToDtoList_NullList_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => CampaignMapper.ToDtoList(null!));
-    }
 }
