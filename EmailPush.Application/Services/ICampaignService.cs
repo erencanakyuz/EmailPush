@@ -33,6 +33,11 @@ public interface ICampaignService
     /// </summary>
     Task<CampaignDto?> UpdateAsync(Guid id, CreateCampaignDto dto);
 
+    /// <summary>
+    /// Partially updates campaign (draft only) - PATCH semantics
+    /// </summary>
+    Task<CampaignDto?> PatchAsync(Guid id, UpdateCampaignDto dto);
+
 
     /// <summary>
     /// Deletes campaign (draft only)

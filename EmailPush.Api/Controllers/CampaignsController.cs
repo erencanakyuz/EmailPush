@@ -116,7 +116,39 @@ public class CampaignsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Partially update an existing campaign (only draft campaigns)
+    /// </summary>
+    /// <param name="id">Campaign unique identifier</param>
+    /// <param name="dto">Partial campaign data for update</param>
+    /// <returns>Updated campaign</returns>
+    /// <response code="200">Campaign updated successfully</response>
+    /// <response code="400">Invalid data or campaign not in draft status</response>
+    /// <response code="404">Campaign not found</response>
+    [HttpPatch("{id}")]
+    [ProducesResponseType(typeof(CampaignDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CampaignDto>> PatchUpdate(Guid id, UpdateCampaignDto dto)
+    {
+        try
+        {
+            var updated = await _campaignService.PatchAsync(id, dto);
+            if (updated == null)
+                return NotFound();
 
+            _logger.LogInformation("Campaign partially updated: {CampaignId}", updated.Id);
+            return Ok(updated);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 
     /// <summary>
     /// Delete a campaign (only draft campaigns)

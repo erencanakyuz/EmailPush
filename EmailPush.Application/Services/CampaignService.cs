@@ -87,6 +87,33 @@ public class CampaignService : ICampaignService
         return CampaignMapper.ToDto(campaign);
     }
 
+    public async Task<CampaignDto?> PatchAsync(Guid id, UpdateCampaignDto dto)
+    {
+        var campaign = await _repository.GetByIdAsync(id);
+        if (campaign == null)
+            return null;
+
+        if (campaign.Status != CampaignStatus.Draft)
+        {
+            throw new InvalidOperationException("Only draft campaigns can be updated");
+        }
+
+        // Email validation for recipients if provided
+        if (dto.Recipients != null && dto.Recipients.Any())
+        {
+            var invalidEmails = EmailValidator.GetInvalidEmails(dto.Recipients);
+            if (invalidEmails.Any())
+            {
+                throw new ArgumentException($"Invalid email addresses: {string.Join(", ", invalidEmails)}");
+            }
+        }
+
+        CampaignMapper.PatchFromDto(campaign, dto);
+        await _repository.UpdateAsync(campaign);
+        _logger.LogInformation("Campaign partially updated: {CampaignId} - {CampaignName}", campaign.Id, campaign.Name);
+
+        return CampaignMapper.ToDto(campaign);
+    }
 
     public async Task<bool> DeleteAsync(Guid id)
     {

@@ -72,4 +72,24 @@ public static class CampaignMapper
         existingCampaign.Content = updateDto.Content;
         existingCampaign.Recipients = updateDto.Recipients;
     }
+
+    /// <summary>
+    /// Updates existing Campaign entity with UpdateCampaignDto data (partial update - PATCH)
+    /// </summary>
+    /// <param name="existingCampaign">Existing campaign to update</param>
+    /// <param name="updateDto">Partial update data</param>
+    public static void PatchFromDto(Campaign existingCampaign, UpdateCampaignDto updateDto)
+    {
+        if (!string.IsNullOrEmpty(updateDto.Name))
+            existingCampaign.Name = updateDto.Name;
+            
+        if (!string.IsNullOrEmpty(updateDto.Subject))
+            existingCampaign.Subject = updateDto.Subject;
+            
+        if (!string.IsNullOrEmpty(updateDto.Content))
+            existingCampaign.Content = updateDto.Content;
+            
+        if (updateDto.Recipients != null)
+            existingCampaign.Recipients = updateDto.Recipients;
+    }
 }
