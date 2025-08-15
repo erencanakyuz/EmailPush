@@ -1,26 +1,27 @@
-# EmailPush - Email Campaign Management System
+# EmailPush2 - Email Campaign Management System
 
-A simple email campaign management API built with ASP.NET Core and Clean Architecture principles.
+A clean email campaign management API built with ASP.NET Core following Clean Architecture and Domain-Driven Design principles.
 
 ## 🚀 Features
 
-- **Campaign CRUD Operations**: Create, read, update, and delete email campaigns
-- **Email Sending**: Start email campaigns with background processing
+- **Campaign CRUD Operations**: Create, read, update (PUT/PATCH), and delete email campaigns
+- **Status Filtering**: Filter campaigns by status (Draft, Ready, Sending, Completed, Failed)
+- **Email Validation**: Automatic email address validation
+- **Email Sending**: Start email campaigns with background processing simulation
 - **Statistics**: Track campaign performance and email delivery stats
-- **Clean Architecture**: Organized in Domain, Application, Infrastructure layers
-- **Background Processing**: Worker service for email simulation
+- **Clean Architecture**: Well-organized layers with proper dependency direction
+- **RESTful API**: Full REST compliance with proper HTTP verbs and status codes
 - **API Documentation**: Comprehensive Swagger documentation
 
 ## 🏗️ Architecture
 
 ```
-EmailPush/                 # Web API Layer
-EmailPush.Application/     # Application Services & DTOs
-EmailPush.Domain/          # Domain Entities & Interfaces  
-EmailPush.Infrastructure/  # Data Access & Repositories
-EmailPush.Worker/          # Background Service
+EmailPush.Api/             # Web API Layer (Presentation)
+EmailPush.Application/     # Application Services & DTOs (Business Logic)
+EmailPush.Domain/          # Domain Entities & Interfaces (Core)
+EmailPush.Infrastructure/  # Data Access & Repositories (Infrastructure)
+EmailPush.Worker/          # Background Service (Infrastructure)
 ```
-
 ## 🔧 Technologies
 
 - **ASP.NET Core 8.0** - Web API Framework
@@ -31,49 +32,91 @@ EmailPush.Worker/          # Background Service
 - **Dependency Injection** - IoC Container
 - **Swagger** - API Documentation
 
-## 🚦 Getting Started
+## 🏛️ Software Development Principles Applied
 
-### Prerequisites
+### 1. Clean Architecture
 
-- .NET 8.0 SDK
-- Visual Studio 2022 or VS Code
+**Layer Separation**: Each layer has specific responsibilities with minimized dependencies between layers.
 
-### Running the Application
+**Dependency Direction**: Dependencies always point inward toward the Domain layer. Outer layers know about inner layers, but not vice versa.
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd EmailPush2
-   ```
+```
++-------------------------------------------------------------+
+|                                                             |
+|   +-----------+      +------------+      +----------------+ |
+|   |    API    |----->| Application|----->|     Domain     | |
+|   +-----------+      +------------+      +----------------+ |
+|                            ^                      ^         |
+|                            |                      |         |
+|   +-----------+      +----------------+           |         |
+|   |  Worker   |----->| Infrastructure |-----------+         |
+|   +-----------+      +----------------+                     |
+|                                                             |
++-------------------------------------------------------------+
+```
 
-2. **Start the API**
-   ```bash
-   cd EmailPush
-   dotnet run
-   ```
+**Layer Responsibilities**:
+- **EmailPush.Api** → Presentation Layer (HTTP concerns)
+- **EmailPush.Application** → Application Layer (Business logic orchestration)
+- **EmailPush.Domain** → Domain Layer (Core business entities and rules)
+- **EmailPush.Infrastructure** → Infrastructure Layer (Data access, external services)
 
-3. **Start the Worker (Optional)**
-   ```bash
-   cd EmailPush.Worker
-   dotnet run
-   ```
+### 2. Domain-Driven Design (DDD)
 
-4. **Access Swagger UI**
-   ```
-   https://localhost:7xxx/swagger
-   ```
+**Ubiquitous Language**: Consistent terminology across the codebase (Campaign, Draft, Ready) that aligns with business domain.
+
+**Domain Layer Isolation**: Core business logic isolated from technology concerns in the Domain layer.
+
+**Entity Modeling**: Campaign entity with proper identity and business behavior.
+
+**Repository Abstraction**: Data access completely abstracted through interfaces, keeping business logic database-agnostic.
+
+### 3. Dependency Injection
+
+**IoC Container**: ASP.NET Core's built-in container manages object lifecycles and dependencies.
+
+**Constructor Injection**: Dependencies (like ICampaignService) injected through constructors.
+
+**Interface Abstractions**: Services depend on interfaces, not concrete implementations.
+
+### 4. Test-Driven Development (TDD)
+
+**Unit Testing**: Comprehensive test coverage with NUnit.
+
+**AAA Pattern**: Tests follow Arrange-Act-Assert structure for clarity.
+
+### 5. SOLID Principles
+
+**Single Responsibility Principle (SRP)**: Each class has one reason to change (EmailValidator, CampaignMapper).
+
+**Open/Closed Principle (OCP)**: Classes open for extension, closed for modification.
+
+**Liskov Substitution Principle (LSP)**: Derived classes replaceable with base classes.
+
+**Interface Segregation Principle (ISP)**: Focused, smaller interfaces rather than large monolithic ones.
+
+**Dependency Inversion Principle (DIP)**: High-level modules don't depend on low-level modules; both depend on abstractions.
+
+### Architecture Notes
+
+*"Applied Clean Architecture principles with pragmatic Microsoft best practices. Domain core kept pure, dependency direction maintained, with practical approach in Program.cs DI setup and Worker background processing."*
+
+
 
 ## 📋 API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET    | `/api/campaigns` | Get all campaigns |
+| GET    | `/api/campaigns?status={status}` | Filter campaigns by status (0=Draft, 1=Ready, 2=Sending, 3=Completed, 4=Failed) |
 | GET    | `/api/campaigns/{id}` | Get campaign by ID |
 | POST   | `/api/campaigns` | Create new campaign |
-| PUT    | `/api/campaigns/{id}` | Update campaign |
-| DELETE | `/api/campaigns/{id}` | Delete campaign |
+| PUT    | `/api/campaigns/{id}` | Update campaign (full replacement) |
+| PATCH  | `/api/campaigns/{id}` | Partially update campaign |
+| DELETE | `/api/campaigns/{id}` | Delete campaign (draft only) |
 | POST   | `/api/campaigns/{id}/start` | Start sending emails |
 | GET    | `/api/campaigns/stats` | Get statistics |
+
 
 ## 📝 Example Usage
 
@@ -86,6 +129,31 @@ POST /api/campaigns
   "content": "Hello! Welcome to our platform. This is a test email campaign.",
   "recipients": ["test@example.com", "user@example.com"]
 }
+```
+
+### Update Campaign (Full Replacement - PUT)
+```json
+PUT /api/campaigns/{id}
+{
+  "name": "Updated Campaign Name",
+  "subject": "Updated subject line",
+  "content": "Updated email content",
+  "recipients": ["new@example.com", "updated@example.com"]
+}
+```
+
+### Partially Update Campaign (PATCH)
+```json
+PATCH /api/campaigns/{id}
+{
+  "name": "Only updating the name"
+}
+```
+
+### Filter Campaigns by Status
+```
+GET /api/campaigns?status=0    # Draft campaigns
+GET /api/campaigns?status=1    # Ready campaigns
 ```
 
 ### Start Email Sending
@@ -128,23 +196,3 @@ Key settings in `appsettings.json`:
 ## 🧪 Testing
 
 Use the included `test-api.http` file with VS Code REST Client or test via Swagger UI.
-
-## 📈 Monitoring
-
-- **Logging**: Built-in ASP.NET Core logging
-- **Error Handling**: Global exception middleware
-- **Health Checks**: API status monitoring
-
-## 🎯 Project Goals (Phase 1)
-
-✅ Campaign CRUD operations  
-✅ Email sending simulation  
-✅ Delivery statistics  
-✅ Clean Architecture implementation  
-✅ Generic Repository Pattern  
-✅ Background Worker Service  
-✅ Comprehensive API documentation  
-
----
-
-*Built as a learning project demonstrating Clean Architecture, Entity Framework, and background processing concepts.*

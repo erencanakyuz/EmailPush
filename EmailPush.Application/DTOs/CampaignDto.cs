@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 
 
-// Bussines Layer, Application katman�, Projenin beyni, gelen istekler i�lenir
+// Bussines Layer, Application katman�, Projenin beyni, gelen istekler işlenir
 // kurallar uygulan�r, CampaignService.cs gibi servisler burada bulunur
-// D�� d�nyadan gelen istekler Application katman�na y�nlendirilir DTOs kullan�larak
+// dış dünyadan gelen istekler Application katmanina yönlendirilir DTOs kullanalarak
 
 namespace EmailPush.Application.DTOs;
 
