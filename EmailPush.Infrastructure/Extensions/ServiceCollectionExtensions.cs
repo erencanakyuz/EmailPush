@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
 
         // Infrastructure Services
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IRetryService, RetryService>();
 
         // Cache
         services.AddMemoryCache();

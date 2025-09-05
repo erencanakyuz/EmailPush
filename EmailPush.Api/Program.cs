@@ -6,8 +6,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using MassTransit;
+using Serilog;
+using AspNetCoreRateLimit;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Serilog
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
 
 // Add services
 builder.Services.AddControllers();
@@ -57,6 +63,28 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
+// Add Rate Limiting
+builder.Services.AddOptions();
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.Configure<IpRateLimitOptions>(options =>
+{
+    options.EnableEndpointRateLimiting = true;
+    options.StackBlockedRequests = false;
+    options.HttpStatusCode = 429;
+    options.RealIpHeader = "X-Real-IP";
+    options.ClientIdHeader = "X-ClientId";
+    options.GeneralRules = new List<RateLimitRule>
+    {
+        new RateLimitRule
+        {
+            Endpoint = "*",
+            Period = "10s",
+            Limit = 10
+        }
+    };
+});
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
 // Register MassTransit Publisher
 builder.Services.AddScoped<IPublishEndpoint>(provider => provider.GetRequiredService<IBus>());
 
@@ -71,6 +99,10 @@ using (var scope = app.Services.CreateScope())
 
 // Configure pipeline
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseMiddleware<MonitoringMiddleware>();
+
+// Add Rate Limiting Middleware
+app.UseIpRateLimiting();
 
 if (app.Environment.IsDevelopment())
 {

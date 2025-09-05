@@ -29,14 +29,28 @@ Beklenen sonuçlar
 ● Options Pattern ile appsettings.json üzerinden konfigürasyon verileri okunmalıdır.
 --------------
 
-TODO: Swagger dokümantasyonu ekle - API endpoints'lere açıklama ve örnek ekle
-TODO: EmailConsumer'da gerçek email gönderim implementasyonu yap
-TODO: FluentValidation ekle campaign validasyon için
-TODO: API response modelleri ekle (DTO'lar)
-TODO: Error handling middleware ekle
-TODO: Logging ekle (Serilog)
-TODO: appsettings'e email provider configuration ekle
-Eklenebilir...
+FAZ -2 TAMAMLANDI
+● Exception Handling: Global bir hata yönetimi mekanizması kuruldu
+● Logging: Serilog entegre edildi, konsol ve dosya loglama yapılandırıldı
+● Middleware: Monitoring middleware eklendi
+● Monitoring Tool: Temel sekiyde izleme mekanizması eklendi
+● Rate limiting: AspNetCoreRateLimit entegre edildi
+● Retry mekanizması: Generic retry servisi oluşturuldu
+
+TAMAMLANANLAR:
+✓ Swagger dokümantasyonu eklendi
+✓ EmailConsumer'da gerçek email gönderim simülasyonu yapıldı
+✓ FluentValidation eklendi campaign validasyon için
+✓ API response modelleri eklendi (DTO'lar)
+✓ Error handling middleware eklendi
+✓ Logging eklendi (Serilog) - FAZ2 kapsamında geliştirildi
+✓ appsettings'e email provider configuration eklendi
+✓ Exception Handling: Global bir hata yönetimi mekanizması kuruldu - FAZ2
+✓ Logging: Konsol haricinde bir log hedefi kullanın (örnek Graylog) - FAZ2
+✓ Middleware kullanın - FAZ2
+✓ Monitoring Tool: Temel seviyede izleme aracı eklendi - FAZ2
+✓ Rate limiting eklendi - FAZ2
+✓ Retry mekanizması eklendi - FAZ2
 
 Ekstralar
 batch ile gönderme emailleri ya da nasıl kullanabilirsek,(tartışılabilir)
