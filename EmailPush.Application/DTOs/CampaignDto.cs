@@ -2,10 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 
 
-// Business Layer, Application layer, the brain of the project, incoming requests are processed
-// rules are applied, business logic is implemented in MediatR handlers
-// requests from the outside world are directed to the Application layer using DTOs
-
 namespace EmailPush.Application.DTOs;
 
 /// <summary>
