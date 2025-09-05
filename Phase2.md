@@ -14,6 +14,7 @@ This document summarizes the features implemented in Phase 2 of the EmailNewPush
 - Configured multiple log targets:
   - Console output (development)
   - File output with daily rolling logs
+  - Graylog integration for centralized logging
 - Enhanced log enrichment with machine name and thread ID
 - Structured logging for better searchability and analysis
 
@@ -47,7 +48,7 @@ This document summarizes the features implemented in Phase 2 of the EmailNewPush
 Added Serilog configuration:
 ```json
 "Serilog": {
-  "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
+  "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File", "Serilog.Sinks.Graylog" ],
   "MinimumLevel": "Information",
   "WriteTo": [
     {
@@ -59,6 +60,14 @@ Added Serilog configuration:
         "path": "./logs/emailpush-.log",
         "rollingInterval": "Day",
         "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+      }
+    },
+    {
+      "Name": "Graylog",
+      "Args": {
+        "HostnameOrAddress": "localhost",
+        "Port": "12201",
+        "TransportType": "Udp"
       }
     }
   ],
@@ -89,6 +98,7 @@ Added rate limiting configuration:
 1. [EmailPush.Api/Middleware/MonitoringMiddleware.cs](file:///mnt/c/Users/Quicito/EmailNewPush/EmailPush.Api/Middleware/MonitoringMiddleware.cs) - Request monitoring middleware
 2. [EmailPush.Infrastructure/Services/RetryService.cs](file:///mnt/c/Users/Quicito/EmailNewPush/EmailPush.Infrastructure/Services/RetryService.cs) - Retry mechanism implementation
 3. [Phase2.md](file:///mnt/c/Users/Quicito/EmailNewPush/Phase2.md) - This documentation file
+4. [GraylogSetup.md](file:///mnt/c/Users/Quicito/EmailNewPush/GraylogSetup.md) - Graylog installation and configuration guide
 
 ## Updated Files
 
@@ -124,7 +134,12 @@ public class SomeService
 Rate limiting is automatically applied to all endpoints based on the configuration in appsettings.json.
 
 ### Logging
-Serilog automatically logs all requests, responses, and application events to both console and file targets.
+Serilog automatically logs all requests, responses, and application events to:
+- Console (development)
+- Daily rolling log files
+- Graylog server (when available)
+
+For detailed instructions on installing and configuring Graylog, see [GraylogSetup.md](file:///mnt/c/Users/Quicito/EmailNewPush/GraylogSetup.md).
 
 ## Future Improvements
 
@@ -133,3 +148,4 @@ Serilog automatically logs all requests, responses, and application events to bo
 3. More sophisticated retry policies with circuit breaker patterns
 4. Distributed tracing integration
 5. Health check endpoints for monitoring
+6. Configuration of Graylog server settings for production environments

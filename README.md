@@ -197,6 +197,24 @@ Key settings in `appsettings.json`:
 }
 ```
 
-## 🧪 Testing
 
-Use the included `test-api.http` file with VS Code REST Client or test via Swagger UI.
+
+
+
+
+# 1. Rate Limiting Test (PowerShell)
+1..15 | ForEach-Object { 
+    Write-Host "İstek $_"; 
+    Invoke-RestMethod -Uri "http://localhost:5129/api/campaigns" 
+}
+
+# 2. Exception Handling Test
+Invoke-RestMethod -Uri "http://localhost:5129/api/nonexistent"
+
+# 3. Basit test (tek istek)
+Invoke-RestMethod -Uri "http://localhost:5129/api/campaigns"
+
+4- monitoring
+
+curl http://localhost:5129/api/campaigns
+status 200 !! 
