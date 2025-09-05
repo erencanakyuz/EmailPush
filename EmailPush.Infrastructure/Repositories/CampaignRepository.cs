@@ -18,6 +18,13 @@ public class CampaignRepository : GenericRepository<Campaign>, ICampaignReposito
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Campaign>> GetByStatusAsync(CampaignStatus status)
+    {
+        return await _context.Set<Campaign>()
+            .Where(c => c.Status == status)
+            .ToListAsync();
+    }
+
     public async Task<Campaign?> GetWithRecipientsAsync(Guid id)
     {
         return await _context.Set<Campaign>()
