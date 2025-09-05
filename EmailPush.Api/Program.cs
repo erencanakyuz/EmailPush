@@ -40,6 +40,9 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Add Memory Cache (required for rate limiting)
+builder.Services.AddMemoryCache();
+
 // Repository Pattern
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
