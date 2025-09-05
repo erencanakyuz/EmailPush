@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using EmailPush.Application.Services;
+using MediatR;
+using EmailPush.Application.Commands;
+using EmailPush.Application.Queries;
 using EmailPush.Application.DTOs;
+using EmailPush.Domain.Entities;
 
 namespace EmailPush.Api.Controllers;
 
@@ -8,14 +11,14 @@ namespace EmailPush.Api.Controllers;
 [Route("api/[controller]")]
 public class CampaignsController : ControllerBase
 {
-    private readonly ICampaignService _campaignService;
+    private readonly IMediator _mediator;
     private readonly ILogger<CampaignsController> _logger;
 
     public CampaignsController(
-        ICampaignService campaignService,
+        IMediator mediator,
         ILogger<CampaignsController> logger)
     {
-        _campaignService = campaignService;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -30,11 +33,12 @@ public class CampaignsController : ControllerBase
     {
         if (status.HasValue)
         {
-            var filteredCampaigns = await _campaignService.GetCampaignsByStatusAsync(status.Value);
+            var query = new GetCampaignsByStatusQuery { Status = status.Value };
+            var filteredCampaigns = await _mediator.Send(query);
             return Ok(filteredCampaigns);
         }
         
-        var campaigns = await _campaignService.GetAllAsync();
+        var campaigns = await _mediator.Send(new GetAllCampaignsQuery());
         return Ok(campaigns);
     }
 
@@ -48,7 +52,8 @@ public class CampaignsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CampaignDto>> GetById(Guid id)
     {
-        var campaign = await _campaignService.GetByIdAsync(id);
+        var query = new GetCampaignByIdQuery { Id = id };
+        var campaign = await _mediator.Send(query);
         if (campaign == null)
             return NotFound();
 
@@ -68,17 +73,18 @@ public class CampaignsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CampaignDto>> Create(CreateCampaignDto dto)
     {
-        try
+        var command = new CreateCampaignCommand
         {
-            var created = await _campaignService.CreateAsync(dto);
-            _logger.LogInformation("Campaign created: {CampaignId}", created.Id);
-            
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+            Name = dto.Name,
+            Subject = dto.Subject,
+            Content = dto.Content,
+            Recipients = dto.Recipients
+        };
+        
+        var created = await _mediator.Send(command);
+        _logger.LogInformation("Campaign created: {CampaignId}", created.Id);
+        
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
 
@@ -97,23 +103,21 @@ public class CampaignsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CampaignDto>> Update(Guid id, CreateCampaignDto dto)
     {
-        try
+        var command = new UpdateCampaignCommand
         {
-            var updated = await _campaignService.UpdateAsync(id, dto);
-            if (updated == null)
-                return NotFound();
+            Id = id,
+            Name = dto.Name,
+            Subject = dto.Subject,
+            Content = dto.Content,
+            Recipients = dto.Recipients
+        };
+        
+        var updated = await _mediator.Send(command);
+        if (updated == null)
+            return NotFound();
 
-            _logger.LogInformation("Campaign updated: {CampaignId}", updated.Id);
-            return Ok(updated);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        _logger.LogInformation("Campaign updated: {CampaignId}", updated.Id);
+        return Ok(updated);
     }
 
     /// <summary>
@@ -131,23 +135,21 @@ public class CampaignsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CampaignDto>> PatchUpdate(Guid id, UpdateCampaignDto dto)
     {
-        try
+        var command = new PatchCampaignCommand
         {
-            var updated = await _campaignService.PatchAsync(id, dto);
-            if (updated == null)
-                return NotFound();
+            Id = id,
+            Name = dto.Name,
+            Subject = dto.Subject,
+            Content = dto.Content,
+            Recipients = dto.Recipients
+        };
+        
+        var updated = await _mediator.Send(command);
+        if (updated == null)
+            return NotFound();
 
-            _logger.LogInformation("Campaign partially updated: {CampaignId}", updated.Id);
-            return Ok(updated);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        _logger.LogInformation("Campaign partially updated: {CampaignId}", updated.Id);
+        return Ok(updated);
     }
 
     /// <summary>
@@ -164,19 +166,13 @@ public class CampaignsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(Guid id)
     {
-        try
-        {
-            var result = await _campaignService.DeleteAsync(id);
-            if (!result)
-                return NotFound();
+        var command = new DeleteCampaignCommand { Id = id };
+        var result = await _mediator.Send(command);
+        if (!result)
+            return NotFound();
 
-            _logger.LogInformation("Campaign deleted: {CampaignId}", id);
-            return NoContent();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        _logger.LogInformation("Campaign deleted: {CampaignId}", id);
+        return NoContent();
     }
 
     /// <summary>
@@ -193,19 +189,13 @@ public class CampaignsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> StartSending(Guid id)
     {
-        try
-        {
-            var result = await _campaignService.StartSendingAsync(id);
-            if (!result)
-                return NotFound();
+        var command = new StartCampaignCommand { Id = id };
+        var result = await _mediator.Send(command);
+        if (!result)
+            return NotFound();
 
-            _logger.LogInformation("Campaign started: {CampaignId}", id);
-            return Ok();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        _logger.LogInformation("Campaign started: {CampaignId}", id);
+        return Ok();
     }
 
 
@@ -217,7 +207,8 @@ public class CampaignsController : ControllerBase
     [ProducesResponseType(typeof(CampaignStatsDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<CampaignStatsDto>> GetStats()
     {
-        var stats = await _campaignService.GetStatsAsync();
+        var query = new GetCampaignStatsQuery();
+        var stats = await _mediator.Send(query);
         return Ok(stats);
     }
 }

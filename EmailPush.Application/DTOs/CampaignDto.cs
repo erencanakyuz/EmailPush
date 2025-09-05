@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 
 
-// Bussines Layer, Application katman�, Projenin beyni, gelen istekler işlenir
-// kurallar uygulan�r, CampaignService.cs gibi servisler burada bulunur
-// dış dünyadan gelen istekler Application katmanina yönlendirilir DTOs kullanalarak
+// Business Layer, Application layer, the brain of the project, incoming requests are processed
+// rules are applied, business logic is implemented in MediatR handlers
+// requests from the outside world are directed to the Application layer using DTOs
 
 namespace EmailPush.Application.DTOs;
 

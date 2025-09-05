@@ -36,7 +36,7 @@ public class CampaignEntityTests
         var campaign = new Campaign();
 
         // Assert
-        Assert.AreEqual(Guid.Empty, campaign.Id);
+        Assert.AreNotEqual(Guid.Empty, campaign.Id); // Id should be auto-generated
         Assert.AreEqual(string.Empty, campaign.Name);
         Assert.AreEqual(string.Empty, campaign.Subject);
         Assert.AreEqual(string.Empty, campaign.Content);

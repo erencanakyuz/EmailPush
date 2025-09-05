@@ -13,7 +13,21 @@ A clean email campaign management API built with ASP.NET Core following Clean Ar
 - **RESTful API**: Full REST compliance with proper HTTP verbs and status codes
 - **API Documentation**: Comprehensive Swagger documentation
 
-## 🏗️ Architecture
+## Architecture
+
+The project follows Clean Architecture principles with a clear separation of concerns:
+
+- **API Layer**: REST controllers that handle HTTP requests
+- **Application Layer**: MediatR handlers that implement business logic
+- **Domain Layer**: Core entities, interfaces, and domain rules
+- **Infrastructure Layer**: Data access implementation and external services
+
+### Key Patterns
+
+- **CQRS**: Command and Query separation using MediatR
+- **Repository Pattern**: Abstracted data access
+- **Dependency Injection**: Inversion of control using ASP.NET Core's built-in container
+- **Middleware**: Global error handling and request logging
 
 ```
 EmailPush.Api/             # Web API Layer (Presentation)
@@ -61,25 +75,15 @@ EmailPush.Worker/          # Background Service (Infrastructure)
 - **EmailPush.Domain** → Domain Layer (Core business entities and rules)
 - **EmailPush.Infrastructure** → Infrastructure Layer (Data access, external services)
 
-### 2. Domain-Driven Design (DDD)
-
-**Ubiquitous Language**: Consistent terminology across the codebase (Campaign, Draft, Ready) that aligns with business domain.
-
-**Domain Layer Isolation**: Core business logic isolated from technology concerns in the Domain layer.
-
-**Entity Modeling**: Campaign entity with proper identity and business behavior.
-
-**Repository Abstraction**: Data access completely abstracted through interfaces, keeping business logic database-agnostic.
-
 ### 3. Dependency Injection
 
 **IoC Container**: ASP.NET Core's built-in container manages object lifecycles and dependencies.
 
-**Constructor Injection**: Dependencies (like ICampaignService) injected through constructors.
+**Constructor Injection**: Dependencies (like IMediator) injected through constructors.
 
 **Interface Abstractions**: Services depend on interfaces, not concrete implementations.
 
-### 4. Test-Driven Development (TDD)
+### 4. Test-Driven Development (TDD) // only for Learning intentions it wont use in project!1
 
 **Unit Testing**: Comprehensive test coverage with NUnit.
 

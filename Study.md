@@ -26,6 +26,30 @@
 
 ## 🏗️ Mimari Analizi
 
+### Project Structure
+
+```
+EmailPush/
+├── EmailPush.Api/              # Web API layer
+│   ├── Controllers/            # REST endpoints
+│   ├── Middleware/             # Error handling, logging
+│   └── Program.cs             # Application startup
+├── EmailPush.Application/      # Business logic layer
+│   ├── Commands/              # Command models
+│   ├── Handlers/              # Command/Query handlers
+│   ├── DTOs/                  # Data transfer objects
+│   └── Utils/                 # Utilities (validators, mappers)
+├── EmailPush.Domain/           # Core domain layer
+│   ├── Entities/              # Domain models
+│   ├── Interfaces/            # Repository interfaces
+│   └── ValueObjects/          # Value objects
+├── EmailPush.Infrastructure/   # Data access layer
+│   ├── Data/                  # EF Core context
+│   ├── Repositories/          # Repository implementations
+│   └── Services/              # External service integrations
+└── EmailPush.Worker/           # Background service
+```
+
 ### Clean Architecture Katmanları
 
 #### 1. **EmailPush.Domain** (Core Layer)
@@ -50,15 +74,15 @@ Domain/
 #### 2. **EmailPush.Application** (Application Layer)
 ```
 Application/
+├── Commands/                    # Command models
+├── Handlers/                    # Command/Query handlers
 ├── DTOs/CampaignDto.cs          # Data transfer objects
-└── Services/
-    ├── CampaignService.cs       # Business logic implementation
-    └── ICampaignService.cs      # Service contract
+└── Utils/                       # Utilities (validators, mappers)
 ```
 
 **Kritik Kararlar:**
 - **DTO Pattern** kullanımı: API contract'ları domain model'den ayrıştırıldı
-- **Service Pattern**: Business logic controller'dan ayrıştırıldı
+- **MediatR Pattern**: Business logic controller'dan ayrıştırıldı
 
 #### 3. **EmailPush.Infrastructure** (Infrastructure Layer)
 ```
@@ -155,9 +179,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 **Alternatif:** In-memory database (test için), PostgreSQL (production)
 
 ```csharp
-// 35-38: Dependency Injection setup
+// 35-36: Dependency Injection setup
 builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
-builder.Services.AddScoped<ICampaignService, CampaignService>();
 ```
 
 **Neden Scoped lifetime?**
@@ -170,7 +193,7 @@ builder.Services.AddScoped<ICampaignService, CampaignService>();
 - Transient: Her injection'da yeni instance (lightweight objects)
 
 ```csharp
-// 40-54: RabbitMQ configuration (commented out)
+// 38-52: RabbitMQ configuration (commented out)
 /*
 builder.Services.AddMassTransit(x =>
 {
@@ -192,7 +215,7 @@ builder.Services.AddMassTransit(x =>
 - İlerde asynchronous email processing için kullanılacak
 
 ```csharp
-// 56-63: Database initialization
+// 54-61: Database initialization
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -207,7 +230,7 @@ using (var scope = app.Services.CreateScope())
 **Production için alternatif:** Migrations kullanılmalı (`dotnet ef migrations add InitialCreate`)
 
 ```csharp
-// 66: Global error handling middleware
+// 64: Global error handling middleware
 app.UseMiddleware<ErrorHandlingMiddleware>();
 ```
 
@@ -277,57 +300,75 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 - Search operations limited
 - İlerde separate table'a migrate edilebilir
 
-### CampaignService Business Logic
+### MediatR Handler Business Logic
 
-```csharp
-public async Task<CampaignDto> CreateAsync(CreateCampaignDto dto)
+``csharp
+public class CreateCampaignCommandHandler : IRequestHandler<CreateCampaignCommand, CampaignDto>
 {
-    // Email validation
-    var invalidEmails = dto.Recipients.Where(email => !IsValidEmail(email)).ToList();
-    if (invalidEmails.Any())
-    {
-        throw new ArgumentException($"Invalid email addresses: {string.Join(", ", invalidEmails)}");
-    }
+    private readonly ICampaignRepository _repository;
+    private readonly ILogger<CreateCampaignCommandHandler> _logger;
 
-    var campaign = new Campaign
+    public async Task<CampaignDto> Handle(CreateCampaignCommand request, CancellationToken cancellationToken)
     {
-        Id = Guid.NewGuid(),
-        // ... property mapping
-        Status = CampaignStatus.Draft,  // Always start as Draft
-        CreatedAt = DateTime.UtcNow,    // UTC for consistency
-        SentCount = 0
-    };
+        // Email validation
+        var invalidEmails = request.Recipients.Where(email => !EmailValidator.IsValid(email)).ToList();
+        if (invalidEmails.Any())
+        {
+            throw new ArgumentException($"Invalid email addresses: {string.Join(", ", invalidEmails)}");
+        }
+
+        var campaign = new Campaign
+        {
+            Id = Guid.NewGuid(),
+            Name = request.Name,
+            Subject = request.Subject,
+            Content = request.Content,
+            Recipients = request.Recipients,
+            Status = CampaignStatus.Draft,  // Always start as Draft
+            CreatedAt = DateTime.UtcNow,    // UTC for consistency
+            SentCount = 0
+        };
+        
+        await _repository.AddAsync(campaign);
+        return CampaignMapper.ToDto(campaign);
+    }
 }
 ```
 
 **Kritik validation:**
-- Email format validation (System.Net.Mail.MailAddress kullanılır)
+- Email format validation (using EmailValidator utility)
 - Business rule: Yeni kampanyalar her zaman Draft status'unda başlar
 
 **Neden UTC time?**
 - Timezone sorunlarını önler
 - Global application support
 
-```csharp
-public async Task<bool> StartSendingAsync(Guid id)
+``csharp
+public class StartCampaignCommandHandler : IRequestHandler<StartCampaignCommand, bool>
 {
-    // Status validation
-    if (campaign.Status != CampaignStatus.Draft)
-    {
-        throw new InvalidOperationException("Only draft campaigns can be started");
-    }
+    private readonly ICampaignRepository _repository;
+    private readonly ILogger<StartCampaignCommandHandler> _logger;
 
-    campaign.Status = CampaignStatus.Ready;
-    campaign.StartedAt = DateTime.UtcNow;
-    
-    // RabbitMQ publishing (placeholder)
-    if (_publishEndpoint != null)
+    public async Task<bool> Handle(StartCampaignCommand request, CancellationToken cancellationToken)
     {
-        // await _publishEndpoint.Publish(new EmailCampaignMessage { ... });
-    }
-    else
-    {
+        var campaign = await _repository.GetByIdAsync(request.Id);
+        if (campaign == null) return false;
+
+        // Status validation
+        if (campaign.Status != CampaignStatus.Draft)
+        {
+            throw new InvalidOperationException("Only draft campaigns can be started");
+        }
+
+        campaign.Status = CampaignStatus.Ready;
+        campaign.StartedAt = DateTime.UtcNow;
+        
+        await _repository.UpdateAsync(campaign);
+        
+        // Logging instead of actual email sending
         _logger.LogInformation("EMAIL SENDING SIMULATION - Campaign: {CampaignName}", campaign.Name);
+        
+        return true;
     }
 }
 ```
@@ -787,8 +828,65 @@ Bu proje şu konularda güçlü temel sağlıyor:
 
 Bu analiz, projenin her detayını mentoruna açıkça sunabilmen için hazırlandı. Her kod parçasının neden bu şekilde yazıldığını, alternatif yaklaşımları ve ilerde nasıl geliştirilebileceğini açıklayabilirsin.
 
+## MediatR Implementation
 
+Commands and Queries are handled through MediatR handlers:
 
+```csharp
+// Command
+public class CreateCampaignCommand : IRequest<CampaignDto>
+{
+    public string Name { get; set; }
+    // ... other properties
+}
 
-NOT: 
-Entity, domain içindeki kimliği (Id) olan, zamanla durumu değişebilen ve kuralları barındıran iş nesnesidir. CANLI DEĞİŞKEN
+// Handler
+public class CreateCampaignCommandHandler : IRequestHandler<CreateCampaignCommand, CampaignDto>
+{
+    private readonly ICampaignRepository _repository;
+    private readonly ILogger<CreateCampaignCommandHandler> _logger;
+
+    public CreateCampaignCommandHandler(
+        ICampaignRepository repository, 
+        ILogger<CreateCampaignCommandHandler> logger)
+    {
+        _repository = repository;
+        _logger = logger;
+    }
+
+    public async Task<CampaignDto> Handle(CreateCampaignCommand request, CancellationToken cancellationToken)
+    {
+        // Validation and business logic
+        var campaign = new Campaign(request.Name, request.Subject, request.Content, request.Recipients);
+        await _repository.AddAsync(campaign);
+        
+        return CampaignMapper.ToDto(campaign);
+    }
+}
+```
+
+### Dependency Injection
+
+Services are registered in `Program.cs`:
+
+```csharp
+// Repository Pattern
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
+
+// MediatR
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(CreateCampaignCommand).Assembly);
+});
+```
+
+### Campaign Business Logic
+
+Business logic is implemented in the MediatR handlers, which provide a clean separation of concerns:
+
+1. **Validation**: Email addresses are validated before campaign creation
+2. **Status Management**: Campaign status transitions are controlled
+3. **Error Handling**: Domain exceptions are thrown and handled globally
+
+```
+

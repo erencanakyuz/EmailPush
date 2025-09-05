@@ -13,7 +13,7 @@ public class EmailValidatorTests
     public void IsValidEmail_ReturnsCorrectResult(string email, bool expectedResult, string description)
     {
         // Act
-        var result = EmailValidator.IsValidEmail(email);
+        var result = EmailValidator.IsValid(email);
 
         // Assert
         Assert.That(result, Is.EqualTo(expectedResult), description);

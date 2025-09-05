@@ -1,13 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using EmailPush.Domain.Entities;
 
 namespace EmailPush.Infrastructure.Data;
 
 public class ApplicationDbContext : DbContext
 {
-    // Infrastructure katmanı, Projenin veri erişim katmanı
-    // Teknoloji ve dış dünya ile somut bağların olduğu yer  Veritabanı kodları
-    // DbContext, Repositories, Migrations gibi yapılar burada bulunur
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {

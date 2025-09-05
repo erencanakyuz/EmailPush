@@ -31,5 +31,12 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
+// Ensure database is created
+using (var scope = builder.Services.BuildServiceProvider().CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.EnsureCreated();
+}
+
 var host = builder.Build();
 host.Run();
