@@ -29,13 +29,7 @@ public class CreateCampaignCommandHandler : IRequestHandler<CreateCampaignComman
             throw new ArgumentException($"Invalid email addresses: {string.Join(", ", invalidEmails)}");
         }
 
-        var campaign = new Campaign
-        {
-            Name = request.Name,
-            Subject = request.Subject,
-            Content = request.Content,
-            Recipients = request.Recipients
-        };
+        var campaign = CampaignMapper.FromCreateCommand(request);
 
         var created = await _repository.AddAsync(campaign);
         _logger.LogInformation("Campaign created: {CampaignId} - {CampaignName}", created.Id, created.Name);

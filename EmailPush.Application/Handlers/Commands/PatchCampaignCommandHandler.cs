@@ -41,17 +41,7 @@ public class PatchCampaignCommandHandler : IRequestHandler<PatchCampaignCommand,
             }
         }
 
-        if (!string.IsNullOrEmpty(request.Name))
-            campaign.Name = request.Name;
-        
-        if (!string.IsNullOrEmpty(request.Subject))
-            campaign.Subject = request.Subject;
-        
-        if (!string.IsNullOrEmpty(request.Content))
-            campaign.Content = request.Content;
-        
-        if (request.Recipients != null)
-            campaign.Recipients = request.Recipients;
+        CampaignMapper.PatchFromCommand(campaign, request);
 
         await _repository.UpdateAsync(campaign);
         _logger.LogInformation("Campaign partially updated: {CampaignId} - {CampaignName}", campaign.Id, campaign.Name);

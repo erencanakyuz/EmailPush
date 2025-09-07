@@ -1,7 +1,7 @@
 using MassTransit;
 using EmailPush.Domain.Interfaces;
 using EmailPush.Domain.Entities;
-using EmailPush.Domain.Messages;
+using EmailPush.Infrastructure.Messages;
 
 namespace EmailPush.Worker;
 

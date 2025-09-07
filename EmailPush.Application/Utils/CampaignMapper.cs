@@ -1,4 +1,5 @@
 using EmailPush.Application.DTOs;
+using EmailPush.Application.Commands;
 using EmailPush.Domain.Entities;
 
 namespace EmailPush.Application.Utils;
@@ -60,6 +61,26 @@ public static class CampaignMapper
     }
 
     /// <summary>
+    /// Maps CreateCampaignCommand to Campaign entity
+    /// </summary>
+    /// <param name="command">CreateCampaignCommand to map</param>
+    /// <returns>Mapped Campaign entity</returns>
+    public static Campaign FromCreateCommand(CreateCampaignCommand command)
+    {
+        return new Campaign
+        {
+            Id = Guid.NewGuid(),
+            Name = command.Name,
+            Subject = command.Subject,
+            Content = command.Content,
+            Recipients = command.Recipients,
+            Status = CampaignStatus.Draft,
+            CreatedAt = DateTime.UtcNow,
+            SentCount = 0
+        };
+    }
+
+    /// <summary>
     /// Updates existing Campaign entity with CreateCampaignDto data
     /// </summary>
     /// <param name="existingCampaign">Existing campaign to update</param>
@@ -71,6 +92,19 @@ public static class CampaignMapper
         existingCampaign.Subject = updateDto.Subject;
         existingCampaign.Content = updateDto.Content;
         existingCampaign.Recipients = updateDto.Recipients;
+    }
+
+    /// <summary>
+    /// Updates existing Campaign entity with UpdateCampaignCommand data
+    /// </summary>
+    /// <param name="existingCampaign">Existing campaign to update</param>
+    /// <param name="updateCommand">Update command data</param>
+    public static void UpdateFromCommand(Campaign existingCampaign, UpdateCampaignCommand updateCommand)
+    {
+        existingCampaign.Name = updateCommand.Name;
+        existingCampaign.Subject = updateCommand.Subject;
+        existingCampaign.Content = updateCommand.Content;
+        existingCampaign.Recipients = updateCommand.Recipients;
     }
 
     /// <summary>
@@ -91,5 +125,25 @@ public static class CampaignMapper
             
         if (updateDto.Recipients != null)
             existingCampaign.Recipients = updateDto.Recipients;
+    }
+
+    /// <summary>
+    /// Updates existing Campaign entity with PatchCampaignCommand data (partial update - PATCH)
+    /// </summary>
+    /// <param name="existingCampaign">Existing campaign to update</param>
+    /// <param name="patchCommand">Partial update command data</param>
+    public static void PatchFromCommand(Campaign existingCampaign, PatchCampaignCommand patchCommand)
+    {
+        if (!string.IsNullOrEmpty(patchCommand.Name))
+            existingCampaign.Name = patchCommand.Name;
+            
+        if (!string.IsNullOrEmpty(patchCommand.Subject))
+            existingCampaign.Subject = patchCommand.Subject;
+            
+        if (!string.IsNullOrEmpty(patchCommand.Content))
+            existingCampaign.Content = patchCommand.Content;
+            
+        if (patchCommand.Recipients != null)
+            existingCampaign.Recipients = patchCommand.Recipients;
     }
 }

@@ -1,3 +1,4 @@
+using EmailPush.Application.Interfaces;
 using EmailPush.Domain.Interfaces;
 using EmailPush.Domain.Services;
 using EmailPush.Infrastructure.Data;
@@ -32,6 +33,7 @@ public static class ServiceCollectionExtensions
         // Infrastructure Services
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IRetryService, RetryService>();
+        services.AddScoped<IEmailCampaignPublisher, EmailCampaignPublisher>();
 
         // Cache
         services.AddMemoryCache();

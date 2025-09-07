@@ -1,5 +1,6 @@
 using EmailPush.Domain.Interfaces;
 using EmailPush.Domain.ValueObjects;
+using EmailPush.Domain.Models;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;

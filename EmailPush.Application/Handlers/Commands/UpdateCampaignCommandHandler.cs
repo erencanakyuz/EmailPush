@@ -38,10 +38,7 @@ public class UpdateCampaignCommandHandler : IRequestHandler<UpdateCampaignComman
             throw new ArgumentException($"Invalid email addresses: {string.Join(", ", invalidEmails)}");
         }
 
-        campaign.Name = request.Name;
-        campaign.Subject = request.Subject;
-        campaign.Content = request.Content;
-        campaign.Recipients = request.Recipients;
+        CampaignMapper.UpdateFromCommand(campaign, request);
 
         await _repository.UpdateAsync(campaign);
         _logger.LogInformation("Campaign updated: {CampaignId} - {CampaignName}", campaign.Id, campaign.Name);

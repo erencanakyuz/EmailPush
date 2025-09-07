@@ -1,9 +1,8 @@
 using MediatR;
-using MassTransit;
 using EmailPush.Application.Commands;
+using EmailPush.Application.Interfaces;
 using EmailPush.Domain.Entities;
 using EmailPush.Domain.Interfaces;
-using EmailPush.Domain.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EmailPush.Application.Handlers.Commands;
@@ -11,16 +10,16 @@ namespace EmailPush.Application.Handlers.Commands;
 public class StartCampaignCommandHandler : IRequestHandler<StartCampaignCommand, bool>
 {
     private readonly ICampaignRepository _repository;
-    private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IEmailCampaignPublisher _campaignPublisher;
     private readonly ILogger<StartCampaignCommandHandler> _logger;
 
     public StartCampaignCommandHandler(
         ICampaignRepository repository,
-        IPublishEndpoint publishEndpoint,
+        IEmailCampaignPublisher campaignPublisher,
         ILogger<StartCampaignCommandHandler> logger)
     {
         _repository = repository;
-        _publishEndpoint = publishEndpoint;
+        _campaignPublisher = campaignPublisher;
         _logger = logger;
     }
 
@@ -42,17 +41,7 @@ public class StartCampaignCommandHandler : IRequestHandler<StartCampaignCommand,
         _logger.LogInformation("Campaign started: {CampaignId} - {CampaignName}, Recipients: {RecipientCount}", 
             campaign.Id, campaign.Name, campaign.Recipients.Count);
 
-        var emailMessage = new EmailCampaignMessage
-        {
-            CampaignId = campaign.Id,
-            CampaignName = campaign.Name,
-            Subject = campaign.Subject,
-            Content = campaign.Content,
-            Recipients = campaign.Recipients.ToList(),
-            CreatedAt = DateTime.UtcNow
-        };
-
-        await _publishEndpoint.Publish(emailMessage, cancellationToken);
+        await _campaignPublisher.PublishCampaignAsync(campaign, cancellationToken);
         _logger.LogInformation("Campaign message published to queue: {CampaignId} - {CampaignName}", 
             campaign.Id, campaign.Name);
 

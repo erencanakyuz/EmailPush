@@ -1,8 +1,6 @@
+using EmailPush.Infrastructure.Extensions;
 using EmailPush.Infrastructure.Data;
-using EmailPush.Domain.Interfaces;
-using EmailPush.Infrastructure.Repositories;
 using EmailPush.Api.Middleware;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using MassTransit;
@@ -36,16 +34,8 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-// Database
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Add Memory Cache (required for rate limiting)
-builder.Services.AddMemoryCache();
-
-// Repository Pattern
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
+// Infrastructure Services (Database, Repositories, Domain Services, etc.)
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // MediatR
 builder.Services.AddMediatR(cfg => {

@@ -185,6 +185,26 @@ Draft → Ready → Sending → Completed
             Failed
 ```
 
+## 📄 Pagination Support
+
+**Before**: All campaigns loaded at once, causing performance issues with large datasets
+**Now**: Efficient pagination with configurable page sizes and navigation
+
+### Key Benefits:
+- **Performance**: Only loads required records from database
+- **Memory Efficiency**: Reduces server and client memory consumption  
+- **Network Optimization**: Smaller payloads for faster API responses
+- **Scalability**: Handles thousands of campaigns without degradation
+- **User Experience**: Smooth navigation through large result sets
+
+### Usage:
+```
+GET /api/campaigns?pageNumber=1&pageSize=10
+GET /api/campaigns?status=0&pageNumber=2&pageSize=5
+```
+
+**Default Settings**: 10 items per page, maximum 100 items, starts at page 1
+
 ## 🛠️ Configuration
 
 Key settings in `appsettings.json`:
@@ -198,7 +218,7 @@ Key settings in `appsettings.json`:
 ```
 
 
-
+**PHASE 2
 
 
 
