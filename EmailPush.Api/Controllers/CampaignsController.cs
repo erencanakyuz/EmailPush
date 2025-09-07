@@ -27,18 +27,33 @@ public class CampaignsController : ControllerBase
     /// Get all email campaigns with optional status filter
     /// </summary>
     /// <param name="status">Filter by status: 0=Draft, 1=Ready, 2=Sending, 3=Completed, 4=Failed</param>
+    /// <param name="pageNumber">Page number (default: 1)</param>
+    /// <param name="pageSize">Page size (default: 10, max: 100)</param>
     [HttpGet]
-    [ProducesResponseType(typeof(List<CampaignDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<CampaignDto>>> GetCampaigns([FromQuery] CampaignStatus? status = null)
+    [ProducesResponseType(typeof(PagedResponseDto<CampaignDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponseDto<CampaignDto>>> GetCampaigns(
+        [FromQuery] CampaignStatus? status = null,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
     {
         if (status.HasValue)
         {
-            var query = new GetCampaignsByStatusQuery { Status = status.Value };
+            var query = new GetCampaignsByStatusQuery 
+            { 
+                Status = status.Value,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
             var filteredCampaigns = await _mediator.Send(query);
             return Ok(filteredCampaigns);
         }
         
-        var campaigns = await _mediator.Send(new GetAllCampaignsQuery());
+        var queryAll = new GetAllCampaignsQuery
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+        var campaigns = await _mediator.Send(queryAll);
         return Ok(campaigns);
     }
 

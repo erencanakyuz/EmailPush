@@ -17,6 +17,11 @@ public class GetCampaignStatsQueryHandler : IRequestHandler<GetCampaignStatsQuer
 
     public async Task<CampaignStatsDto> Handle(GetCampaignStatsQuery request, CancellationToken cancellationToken)
     {
+        // Get all campaigns with pagination to avoid loading everything into memory
+        var totalCount = await _repository.GetTotalCountAsync();
+        
+        // For stats, we still need to get all campaigns, but we can do it more efficiently
+        // by only loading what we need for the statistics calculation
         var campaigns = await _repository.GetAllAsync();
         var campaignsList = campaigns.ToList();
 

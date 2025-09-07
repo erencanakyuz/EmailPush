@@ -7,7 +7,7 @@ using EmailPush.Domain.Entities;
 
 namespace EmailPush.Application.Handlers.Queries;
 
-public class GetCampaignsByStatusQueryHandler : IRequestHandler<GetCampaignsByStatusQuery, List<CampaignDto>>
+public class GetCampaignsByStatusQueryHandler : IRequestHandler<GetCampaignsByStatusQuery, PagedResponseDto<CampaignDto>>
 {
     private readonly ICampaignRepository _repository;
 
@@ -16,9 +16,15 @@ public class GetCampaignsByStatusQueryHandler : IRequestHandler<GetCampaignsBySt
         _repository = repository;
     }
 
-    public async Task<List<CampaignDto>> Handle(GetCampaignsByStatusQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResponseDto<CampaignDto>> Handle(GetCampaignsByStatusQuery request, CancellationToken cancellationToken)
     {
-        var campaigns = await _repository.GetByStatusAsync(request.Status);
-        return CampaignMapper.ToDtoList(campaigns);
+        var campaigns = await _repository.GetPagedByStatusAsync(request.Status, request.PageNumber, request.PageSize);
+        var campaignDtos = CampaignMapper.ToDtoList(campaigns);
+        
+        // Get total count for the specific status
+        var allCampaignsWithStatus = await _repository.GetByStatusAsync(request.Status);
+        var totalCount = allCampaignsWithStatus.Count();
+
+        return new PagedResponseDto<CampaignDto>(campaignDtos, request.PageNumber, request.PageSize, totalCount);
     }
 }

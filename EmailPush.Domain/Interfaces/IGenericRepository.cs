@@ -8,4 +8,8 @@ public interface IGenericRepository<T> where T : class
     Task UpdateAsync(T entity);
     Task DeleteAsync(T entity);
     Task<bool> ExistsAsync(Guid id);
+
+    // Pagination support
+    Task<IEnumerable<T>> GetPagedAsync(int pageNumber, int pageSize);
+    Task<int> GetTotalCountAsync();
 }

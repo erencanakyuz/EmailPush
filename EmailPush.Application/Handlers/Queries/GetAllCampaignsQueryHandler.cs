@@ -6,7 +6,7 @@ using EmailPush.Domain.Interfaces;
 
 namespace EmailPush.Application.Handlers.Queries;
 
-public class GetAllCampaignsQueryHandler : IRequestHandler<GetAllCampaignsQuery, List<CampaignDto>>
+public class GetAllCampaignsQueryHandler : IRequestHandler<GetAllCampaignsQuery, PagedResponseDto<CampaignDto>>
 {
     private readonly ICampaignRepository _repository;
 
@@ -15,9 +15,12 @@ public class GetAllCampaignsQueryHandler : IRequestHandler<GetAllCampaignsQuery,
         _repository = repository;
     }
 
-    public async Task<List<CampaignDto>> Handle(GetAllCampaignsQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResponseDto<CampaignDto>> Handle(GetAllCampaignsQuery request, CancellationToken cancellationToken)
     {
-        var campaigns = await _repository.GetAllAsync();
-        return CampaignMapper.ToDtoList(campaigns);
+        var campaigns = await _repository.GetPagedAsync(request.PageNumber, request.PageSize);
+        var campaignDtos = CampaignMapper.ToDtoList(campaigns);
+        var totalCount = await _repository.GetTotalCountAsync();
+
+        return new PagedResponseDto<CampaignDto>(campaignDtos, request.PageNumber, request.PageSize, totalCount);
     }
 }

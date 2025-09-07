@@ -30,4 +30,15 @@ public class CampaignRepository : GenericRepository<Campaign>, ICampaignReposito
         return await _context.Set<Campaign>()
             .FirstOrDefaultAsync(c => c.Id == id);
     }
+
+    // Pagination support
+    public async Task<IEnumerable<Campaign>> GetPagedByStatusAsync(CampaignStatus status, int pageNumber, int pageSize)
+    {
+        var skip = (pageNumber - 1) * pageSize;
+        return await _context.Set<Campaign>()
+            .Where(c => c.Status == status)
+            .Skip(skip)
+            .Take(pageSize)
+            .ToListAsync();
+    }
 }

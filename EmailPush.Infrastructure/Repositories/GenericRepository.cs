@@ -48,4 +48,16 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         return await _dbSet.FindAsync(id) != null;
     }
+
+    // Pagination support
+    public virtual async Task<IEnumerable<T>> GetPagedAsync(int pageNumber, int pageSize)
+    {
+        var skip = (pageNumber - 1) * pageSize;
+        return await _dbSet.Skip(skip).Take(pageSize).ToListAsync();
+    }
+
+    public virtual async Task<int> GetTotalCountAsync()
+    {
+        return await _dbSet.CountAsync();
+    }
 }
