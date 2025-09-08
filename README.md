@@ -46,6 +46,7 @@ EmailPush.Worker/          # Background Service (Infrastructure)
 - **Dependency Injection** - IoC Container
 - **Swagger** - API Documentation
 
+
 ## 🏛️ Software Development Principles Applied
 
 ### 1. Clean Architecture
@@ -221,6 +222,15 @@ Key settings in `appsettings.json`:
 **PHASE 2
 
 
+
+- **AutoMapper** - Replace manual CampaignMapper 
+
+- **Polly** - Microsoft's retry library
+
+- **FluentValidation** - Replace custom  EmailValidator with ready  validation lib
+
+- **Pagination** - Simple custom paggination added
+- **Error Handling** -  middleware custom simple!
 
 # 1. Rate Limiting Test (PowerShell)
 1..15 | ForEach-Object { 

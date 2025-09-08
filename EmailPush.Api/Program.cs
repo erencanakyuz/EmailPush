@@ -1,4 +1,5 @@
 using EmailPush.Infrastructure.Extensions;
+using EmailPush.Application.Extensions;
 using EmailPush.Infrastructure.Data;
 using EmailPush.Api.Middleware;
 using Microsoft.OpenApi.Models;
@@ -37,10 +38,8 @@ builder.Services.AddSwaggerGen(c =>
 // Infrastructure Services (Database, Repositories, Domain Services, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// MediatR
-builder.Services.AddMediatR(cfg => {
-    cfg.RegisterServicesFromAssembly(typeof(EmailPush.Application.Commands.CreateCampaignCommand).Assembly);
-});
+// Application Services (AutoMapper, FluentValidation, MediatR)
+builder.Services.AddApplication();
 
 // MassTransit (RabbitMQ) 
 builder.Services.AddMassTransit(x =>
