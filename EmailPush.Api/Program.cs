@@ -78,8 +78,7 @@ builder.Services.Configure<IpRateLimitOptions>(options =>
 });
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
-// Register MassTransit Publisher
-builder.Services.AddScoped<IPublishEndpoint>(provider => provider.GetRequiredService<IBus>());
+// MassTransit Publisher is registered automatically
 
 var app = builder.Build();
 
