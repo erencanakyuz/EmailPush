@@ -277,3 +277,49 @@ Invoke-RestMethod -Uri "http://localhost:5129/api/campaigns"
 
 curl http://localhost:5129/api/campaigns
 status 200 !! 
+
+## 🐳 Local Development Setup
+
+### Quick Start with Docker
+
+Start all services (RabbitMQ + Graylog):
+```bash
+docker-compose up -d
+```
+
+### Individual Services
+
+**RabbitMQ** (for background processing):
+```bash
+docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+```
+- AMQP: localhost:5672
+- Management UI: http://localhost:15672 (guest/guest)
+
+**Graylog** (for logging):
+Already included in docker-compose.yml
+- Web UI: http://localhost:9000 (admin/admin)
+- Log ingestion: UDP port 12201
+
+### Testing the Setup
+
+1. Start API and Worker:
+   ```bash
+   dotnet run --project EmailPush.Api
+   dotnet run --project EmailPush.Worker
+   ```
+
+2. Create and start a campaign:
+   ```bash
+   # Create campaign
+   curl -X POST http://localhost:5000/api/campaigns \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Test","subject":"Test Subject","content":"Test Content","recipients":["test@example.com"]}'
+
+   # Start campaign (use returned ID)
+   curl -X POST http://localhost:5000/api/campaigns/[CAMPAIGN_ID]/start
+   ```
+
+3. Monitor:
+   - RabbitMQ: http://localhost:15672
+   - Graylog: http://localhost:9000
