@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using EmailPush.Application.Validators;
 
 
 
@@ -28,7 +29,7 @@ public class CampaignDto
 /// DTO for creating new campaigns
 /// </summary>
 
-public class CreateCampaignDto
+public class CreateCampaignDto : ICreateCampaignRequest
 {
 
     /// <summary>
