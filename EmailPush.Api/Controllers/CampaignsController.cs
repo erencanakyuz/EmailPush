@@ -3,7 +3,8 @@ using MediatR;
 using EmailPush.Application.Commands;
 using EmailPush.Application.Queries;
 using EmailPush.Application.DTOs;
-using EmailPush.Domain.Entities;
+// Removed direct reference to Domain.Entities to avoid domain layer leakage
+// Will use string-based status filtering instead
 
 namespace EmailPush.Api.Controllers;
 
@@ -26,34 +27,46 @@ public class CampaignsController : ControllerBase
     /// <summary>
     /// Get all email campaigns with optional status filter
     /// </summary>
-    /// <param name="status">Filter by status: 0=Draft, 1=Ready, 2=Sending, 3=Completed, 4=Failed</param>
+    /// <param name="status">Filter by status: Draft, Ready, Sending, Completed, Failed</param>
     /// <param name="pageNumber">Page number (default: 1)</param>
     /// <param name="pageSize">Page size (default: 10, max: 100)</param>
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponseDto<CampaignDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResponseDto<CampaignDto>>> GetCampaigns(
-        [FromQuery] CampaignStatus? status = null,
+        [FromQuery] string? status = null,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10)
     {
-        if (status.HasValue)
-        {
-            var query = new GetCampaignsByStatusQuery 
-            { 
-                Status = status.Value,
-                PageNumber = pageNumber,
-                PageSize = pageSize
-            };
-            var filteredCampaigns = await _mediator.Send(query);
-            return Ok(filteredCampaigns);
-        }
-        
-        var queryAll = new GetAllCampaignsQuery
-        {
+        // Validate pagination parameters
+        if (pageNumber < 1)
+            pageNumber = 1;
+            
+        if (pageSize < 1)
+            pageSize = 10;
+            
+        if (pageSize > 100)
+            pageSize = 100;
+
+        var query = new GetCampaignsQuery 
+        { 
             PageNumber = pageNumber,
             PageSize = pageSize
         };
-        var campaigns = await _mediator.Send(queryAll);
+        
+        // Convert string status to enum if provided
+        if (!string.IsNullOrEmpty(status))
+        {
+            if (Enum.TryParse<CampaignStatus>(status, true, out var statusEnum))
+            {
+                query.Status = statusEnum;
+            }
+            else
+            {
+                return BadRequest($"Invalid status value: {status}. Valid values are: Draft, Ready, Sending, Completed, Failed");
+            }
+        }
+        
+        var campaigns = await _mediator.Send(query, HttpContext.RequestAborted);
         return Ok(campaigns);
     }
 
@@ -68,7 +81,7 @@ public class CampaignsController : ControllerBase
     public async Task<ActionResult<CampaignDto>> GetById(Guid id)
     {
         var query = new GetCampaignByIdQuery { Id = id };
-        var campaign = await _mediator.Send(query);
+        var campaign = await _mediator.Send(query, HttpContext.RequestAborted);
         if (campaign == null)
             return NotFound();
 
@@ -96,10 +109,17 @@ public class CampaignsController : ControllerBase
             Recipients = dto.Recipients
         };
         
-        var created = await _mediator.Send(command);
-        _logger.LogInformation("Campaign created: {CampaignId}", created.Id);
-        
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        try
+        {
+            var created = await _mediator.Send(command, HttpContext.RequestAborted);
+            _logger.LogInformation("Campaign created: {CampaignId}", created.Id);
+            
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
 
@@ -127,12 +147,24 @@ public class CampaignsController : ControllerBase
             Recipients = dto.Recipients
         };
         
-        var updated = await _mediator.Send(command);
-        if (updated == null)
-            return NotFound();
+        try
+        {
+            var updated = await _mediator.Send(command, HttpContext.RequestAborted);
+            if (updated == null)
+                return NotFound();
 
-        _logger.LogInformation("Campaign updated: {CampaignId}", updated.Id);
-        return Ok(updated);
+            _logger.LogInformation("Campaign updated: {CampaignId}", updated.Id);
+            return Ok(updated);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Business rule violation (e.g., trying to update non-draft campaign)
+            return BadRequest(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>
@@ -159,12 +191,24 @@ public class CampaignsController : ControllerBase
             Recipients = dto.Recipients
         };
         
-        var updated = await _mediator.Send(command);
-        if (updated == null)
-            return NotFound();
+        try
+        {
+            var updated = await _mediator.Send(command, HttpContext.RequestAborted);
+            if (updated == null)
+                return NotFound();
 
-        _logger.LogInformation("Campaign partially updated: {CampaignId}", updated.Id);
-        return Ok(updated);
+            _logger.LogInformation("Campaign partially updated: {CampaignId}", updated.Id);
+            return Ok(updated);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Business rule violation (e.g., trying to update non-draft campaign)
+            return BadRequest(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>
@@ -182,12 +226,21 @@ public class CampaignsController : ControllerBase
     public async Task<ActionResult> Delete(Guid id)
     {
         var command = new DeleteCampaignCommand { Id = id };
-        var result = await _mediator.Send(command);
-        if (!result)
-            return NotFound();
+        
+        try
+        {
+            var result = await _mediator.Send(command, HttpContext.RequestAborted);
+            if (!result)
+                return NotFound();
 
-        _logger.LogInformation("Campaign deleted: {CampaignId}", id);
-        return NoContent();
+            _logger.LogInformation("Campaign deleted: {CampaignId}", id);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Business rule violation (e.g., trying to delete non-draft campaign)
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>
@@ -205,12 +258,21 @@ public class CampaignsController : ControllerBase
     public async Task<ActionResult> StartSending(Guid id)
     {
         var command = new StartCampaignCommand { Id = id };
-        var result = await _mediator.Send(command);
-        if (!result)
-            return NotFound();
+        
+        try
+        {
+            var result = await _mediator.Send(command, HttpContext.RequestAborted);
+            if (!result)
+                return NotFound();
 
-        _logger.LogInformation("Campaign started: {CampaignId}", id);
-        return Ok();
+            _logger.LogInformation("Campaign started: {CampaignId}", id);
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Business rule violation (e.g., trying to start non-draft campaign)
+            return BadRequest(ex.Message);
+        }
     }
 
 
@@ -223,7 +285,7 @@ public class CampaignsController : ControllerBase
     public async Task<ActionResult<CampaignStatsDto>> GetStats()
     {
         var query = new GetCampaignStatsQuery();
-        var stats = await _mediator.Send(query);
+        var stats = await _mediator.Send(query, HttpContext.RequestAborted);
         return Ok(stats);
     }
 }

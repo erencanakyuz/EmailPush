@@ -41,4 +41,10 @@ public class CampaignRepository : GenericRepository<Campaign>, ICampaignReposito
             .Take(pageSize)
             .ToListAsync();
     }
+    
+    public async Task<int> GetCountByStatusAsync(CampaignStatus status)
+    {
+        return await _context.Set<Campaign>()
+            .CountAsync(c => c.Status == status);
+    }
 }

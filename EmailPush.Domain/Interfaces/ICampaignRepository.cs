@@ -13,4 +13,5 @@ public interface ICampaignRepository : IGenericRepository<Campaign>
 
     // Pagination support
     Task<IEnumerable<Campaign>> GetPagedByStatusAsync(CampaignStatus status, int pageNumber, int pageSize);
+    Task<int> GetCountByStatusAsync(CampaignStatus status);
 }
