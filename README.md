@@ -239,18 +239,22 @@ Key settings in `appsettings.json`:
 
 - **Enum Refactoring** - Moved CampaignStatus enum to separate file (EmailPush.Domain/Enums/CampaignStatus.cs) for better organization
 
+**Problem**: Redundant repository methods causing code duplication
+ Use LINQ on IQueryable for flexible querying
 
- Fixx:   IQueryable vs IEnumerable
+**Benefits**: Reduced code duplication, improved flexibility, better maintainability
 
-Statistics calculation loads ALL campaigns into memory
+ IQueryable vs IEnumerable
+
+calculation loads ALL campaigns into memory
+
 var campaigns = await _repository.GetAllAsync(); // Loads ALL data
 var campaignsList = campaigns.ToList(); 
 TotalCampaigns = campaignsList.Count,
 ```
-
 **Solution**: Use IQueryable for database-level operations
 // ✅ AFTER: Optimized
-var campaignsQuery = _repository.GetAll(); // IQueryable - 
+var campaignsQuery = _repository.GetAll(); // IQueryable - no data loaded yet
 TotalCampaigns = await campaignsQuery.CountAsync(), // SQL: SELECT COUNT(*)
 DraftCampaigns = await campaignsQuery.CountAsync(c => c.Status == CampaignStatus.Draft), // SQL: SELECT COUNT(*) WHERE Status = 0
 ```

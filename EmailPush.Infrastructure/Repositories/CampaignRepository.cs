@@ -18,4 +18,3 @@ public class CampaignRepository : GenericRepository<Campaign>, ICampaignReposito
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 }
-}

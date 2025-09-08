@@ -3,7 +3,6 @@ using EmailPush.Application.Commands;
 using EmailPush.Domain.Interfaces;
 using EmailPush.Domain.Entities;
 using EmailPush.Domain.Enums;
-using EmailPush.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace EmailPush.Application.Handlers.Commands;
