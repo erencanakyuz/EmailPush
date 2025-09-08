@@ -4,6 +4,7 @@ using EmailPush.Application.Queries;
 using EmailPush.Application.DTOs;
 using EmailPush.Domain.Interfaces;
 using EmailPush.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace EmailPush.Application.Handlers.Queries;
 
@@ -25,10 +26,16 @@ public class GetCampaignsQueryHandler : IRequestHandler<GetCampaignsQuery, Paged
 
         if (request.Status.HasValue)
         {
-            // Filter by status
-            var campaigns = await _repository.GetPagedByStatusAsync(request.Status.Value, request.PageNumber, request.PageSize);
+            // Filter by status using LINQ on IQueryable
+            var query = _repository.GetAll().Where(c => c.Status == request.Status.Value);
+            totalCount = await query.CountAsync();
+            
+            var campaigns = await query
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync();
+                
             campaignDtos = _mapper.Map<List<CampaignDto>>(campaigns);
-            totalCount = await _repository.GetCountByStatusAsync(request.Status.Value);
         }
         else
         {
