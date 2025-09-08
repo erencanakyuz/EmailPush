@@ -2,6 +2,7 @@ using EmailPush.Domain.Entities;
 using EmailPush.Domain.Interfaces;
 using EmailPush.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using EmailPush.Domain.Enums;
 
 namespace EmailPush.Infrastructure.Repositories;
 

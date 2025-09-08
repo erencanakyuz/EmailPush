@@ -3,8 +3,7 @@ using MediatR;
 using EmailPush.Application.Commands;
 using EmailPush.Application.Queries;
 using EmailPush.Application.DTOs;
-// Removed direct reference to Domain.Entities to avoid domain layer leakage
-// Will use string-based status filtering instead
+using EmailPush.Domain.Enums;
 
 namespace EmailPush.Api.Controllers;
 

@@ -2,6 +2,7 @@ using AutoMapper;
 using EmailPush.Application.DTOs;
 using EmailPush.Application.Commands;
 using EmailPush.Domain.Entities;
+using EmailPush.Domain.Enums;
 
 namespace EmailPush.Application.Mappings;
 

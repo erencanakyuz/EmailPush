@@ -1,5 +1,5 @@
 using MassTransit;
-using EmailPush.Application.Interfaces;
+using EmailPush.Domain.Interfaces;
 using EmailPush.Domain.Entities;
 using EmailPush.Infrastructure.Messages;
 

@@ -225,12 +225,16 @@ Key settings in `appsettings.json`:
 
 - **AutoMapper** - Replace manual CampaignMapper 
 
-- **Polly** - Microsoft's retry library
+- **Polly** - Microsoft's retry library 
 
-- **FluentValidation** - Replace custom  EmailValidator with ready  validation lib
+- **FluentValidation** - Replace custom  EmailValidator with ready  validation lib 
 
 - **Pagination** - Simple custom paggination added
 - **Error Handling** -  middleware custom simple!
+
+## Phase 2 Improvements
+
+- **Enum Refactoring** - Moved CampaignStatus enum to separate file (EmailPush.Domain/Enums/CampaignStatus.cs) for better organization
 
 # 1. Rate Limiting Test (PowerShell)
 1..15 | ForEach-Object { 

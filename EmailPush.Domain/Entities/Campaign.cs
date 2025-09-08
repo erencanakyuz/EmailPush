@@ -1,3 +1,5 @@
+using EmailPush.Domain.Enums;
+
 namespace EmailPush.Domain.Entities;
 
 public class Campaign
@@ -38,13 +40,4 @@ public class Campaign
             Status = CampaignStatus.Completed;
         }
     }
-}
-
-public enum CampaignStatus
-{
-    Draft,
-    Ready,
-    Sending,
-    Completed,
-    Failed
 }

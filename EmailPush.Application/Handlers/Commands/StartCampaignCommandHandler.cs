@@ -1,7 +1,8 @@
 using MediatR;
 using EmailPush.Application.Commands;
-using EmailPush.Application.Interfaces;
+using EmailPush.Domain.Interfaces;
 using EmailPush.Domain.Entities;
+using EmailPush.Domain.Enums;
 using EmailPush.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 

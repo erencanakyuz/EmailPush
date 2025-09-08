@@ -1,4 +1,3 @@
-using EmailPush.Application.Interfaces;
 using EmailPush.Domain.Interfaces;
 using EmailPush.Domain.Services;
 using EmailPush.Infrastructure.Data;

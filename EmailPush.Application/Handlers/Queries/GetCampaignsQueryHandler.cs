@@ -3,6 +3,7 @@ using AutoMapper;
 using EmailPush.Application.Queries;
 using EmailPush.Application.DTOs;
 using EmailPush.Domain.Interfaces;
+using EmailPush.Domain.Enums;
 
 namespace EmailPush.Application.Handlers.Queries;
 

@@ -3,6 +3,7 @@ using AutoMapper;
 using EmailPush.Application.Commands;
 using EmailPush.Application.DTOs;
 using EmailPush.Domain.Entities;
+using EmailPush.Domain.Enums;
 using EmailPush.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 

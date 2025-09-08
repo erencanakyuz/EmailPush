@@ -1,4 +1,5 @@
 ﻿using EmailPush.Domain.Entities;
+using EmailPush.Domain.Enums;
 
 namespace EmailPush.Domain.Interfaces;
 

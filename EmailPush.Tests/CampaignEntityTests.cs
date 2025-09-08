@@ -1,4 +1,5 @@
 using EmailPush.Domain.Entities;
+using EmailPush.Domain.Enums;
 using NUnit.Framework;
 
 namespace EmailPush.Tests;

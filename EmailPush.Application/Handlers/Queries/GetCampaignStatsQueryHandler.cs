@@ -2,6 +2,7 @@ using MediatR;
 using EmailPush.Application.Queries;
 using EmailPush.Application.DTOs;
 using EmailPush.Domain.Entities;
+using EmailPush.Domain.Enums;
 using EmailPush.Domain.Interfaces;
 
 namespace EmailPush.Application.Handlers.Queries;

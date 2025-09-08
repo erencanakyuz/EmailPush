@@ -1,6 +1,6 @@
 using EmailPush.Domain.Entities;
 
-namespace EmailPush.Application.Interfaces;
+namespace EmailPush.Domain.Interfaces;
 
 public interface IEmailCampaignPublisher
 {
