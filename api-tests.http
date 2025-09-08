@@ -1,0 +1,41 @@
+### EmailPush API Test File
+### Test API Health
+
+# Test 1: API Health Check 
+GET http://localhost:5000/api/campaigns
+Accept: application/json
+
+###
+
+# Test 2: Create Campaign
+POST http://localhost:5000/api/campaigns
+Content-Type: application/json
+
+{
+    "name": "Graylog Test Campaign",
+    "subject": "Test Email Subject For Graylog",
+    "content": "Bu bir Graylog test email içeriðidir - timestamp: {{$timestamp}}",
+    "recipients": [
+        "test1@example.com",
+        "test2@example.com",
+        "graylog-test@example.com"
+    ]
+}
+
+###
+
+# Test 3: Get All Campaigns
+GET http://localhost:5000/api/campaigns
+Accept: application/json
+
+###
+
+# Test 4: Start Campaign (Replace {id} with actual campaign ID)
+POST http://localhost:5000/api/campaigns/2368a277-6ef3-488d-9fe5-4a31b1f42f4a/start
+Accept: application/json
+
+###
+
+# Test 5: Get Campaign Stats
+GET http://localhost:5000/api/campaigns/stats
+Accept: application/json

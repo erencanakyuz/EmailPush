@@ -4,8 +4,16 @@ using EmailPush.Domain.Interfaces;
 using EmailPush.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using MassTransit;
+using Serilog;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+// Add Serilog - Worker için farklý syntax
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
+builder.Services.AddSerilog();
 
 // Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -39,4 +47,19 @@ using (var scope = builder.Services.BuildServiceProvider().CreateScope())
 }
 
 var host = builder.Build();
-host.Run();
+
+// Log startup
+Log.Information("EmailPush Worker Service starting...");
+
+try
+{
+    host.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Worker service terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # MongoDB for Graylog
+  mongodb:
+    image: mongo:7.0
+    container_name: emailpush_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - emailpush_network
+
+  # Elasticsearch for Graylog (Downgraded to 7.17.24 for Graylog compatibility)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.24
+    container_name: emailpush_elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - emailpush_network
+
+  # Graylog
+  graylog:
+    image: graylog/graylog:5.2
+    container_name: emailpush_graylog
+    ports:
+      - "9000:9000"     # Graylog web interface
+      - "12201:12201/udp" # GELF UDP
+      - "1514:1514"     # Syslog TCP
+      - "1514:1514/udp" # Syslog UDP
+    volumes:
+      - graylog_data:/usr/share/graylog/data
+    environment:
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918 # admin
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
+      - GRAYLOG_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - GRAYLOG_MONGODB_URI=mongodb://admin:password@mongodb:27017/graylog?authSource=admin
+    depends_on:
+      - mongodb
+      - elasticsearch
+    networks:
+      - emailpush_network
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: emailpush_rabbitmq
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - emailpush_network
+
+volumes:
+  mongodb_data:
+  elasticsearch_data:
+  graylog_data:
+  rabbitmq_data:
+
+networks:
+  emailpush_network:
+    driver: bridge
