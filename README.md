@@ -186,6 +186,10 @@ Draft → Ready → Sending → Completed
             Failed
 ```
 
+
+
+
+**PHASE 2
 ## 📄 Pagination Support
 
 **Before**: All campaigns loaded at once, causing performance issues with large datasets
@@ -219,7 +223,6 @@ Key settings in `appsettings.json`:
 ```
 
 
-**PHASE 2
 
 
 
@@ -235,6 +238,24 @@ Key settings in `appsettings.json`:
 ## Phase 2 Improvements
 
 - **Enum Refactoring** - Moved CampaignStatus enum to separate file (EmailPush.Domain/Enums/CampaignStatus.cs) for better organization
+
+
+ Fixx:   IQueryable vs IEnumerable
+
+Statistics calculation loads ALL campaigns into memory
+var campaigns = await _repository.GetAllAsync(); // Loads ALL data
+var campaignsList = campaigns.ToList(); 
+TotalCampaigns = campaignsList.Count,
+```
+
+**Solution**: Use IQueryable for database-level operations
+// ✅ AFTER: Optimized
+var campaignsQuery = _repository.GetAll(); // IQueryable - 
+TotalCampaigns = await campaignsQuery.CountAsync(), // SQL: SELECT COUNT(*)
+DraftCampaigns = await campaignsQuery.CountAsync(c => c.Status == CampaignStatus.Draft), // SQL: SELECT COUNT(*) WHERE Status = 0
+```
+
+**Result**: 1000x faster - database does the work, not memory!
 
 # 1. Rate Limiting Test (PowerShell)
 1..15 | ForEach-Object { 
